@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import logging
 import joblib
 import numpy as np
 from datetime import datetime
@@ -49,6 +50,43 @@ def health():
         "status":    "ok",
         "timestamp": datetime.now().isoformat(),
         "model":     "loaded" if MODEL else "not loaded"
+    }
+
+# ════════════════════════════════════
+# ENDPOINT — Debug (path diagnostics)
+# ════════════════════════════════════
+@app.get("/api/debug")
+def debug():
+    forecast_path = root_path("data", "forecasts", "forecast_latest.json")
+    heatmap_path  = root_path("data", "indices", "bloom_heatmap_latest.geojson")
+    safety_path   = root_path("data", "beach_safety_scores.json")
+    model_path    = root_path("ml_engine", "bloom_model.pkl")
+
+    # Walk data/ directory
+    data_dir = root_path("data")
+    file_tree = {}
+    if os.path.isdir(data_dir):
+        for dirpath, dirnames, filenames in os.walk(data_dir):
+            rel = os.path.relpath(dirpath, ROOT)
+            file_tree[rel] = filenames
+
+    return {
+        "ROOT":              ROOT,
+        "cwd":               os.getcwd(),
+        "IS_POSTGRES":       IS_POSTGRES,
+        "files": {
+            "forecast_latest.json":          os.path.exists(forecast_path),
+            "bloom_heatmap_latest.geojson":  os.path.exists(heatmap_path),
+            "beach_safety_scores.json":      os.path.exists(safety_path),
+            "bloom_model.pkl":               os.path.exists(model_path),
+        },
+        "paths": {
+            "forecast":  forecast_path,
+            "heatmap":   heatmap_path,
+            "safety":    safety_path,
+            "model":     model_path,
+        },
+        "data_directory": file_tree,
     }
 
 # ════════════════════════════════════
@@ -177,6 +215,8 @@ def weather():
 @app.get("/api/forecast/72hr")
 def forecast_72hr():
     path = root_path("data", "forecasts", "forecast_latest.json")
+    logging.warning(f"[forecast] Looking for forecast at: {path}")
+    logging.warning(f"[forecast] File exists: {os.path.exists(path)}")
     if os.path.exists(path):
         try:
             with open(path) as f:
@@ -186,8 +226,8 @@ def forecast_72hr():
                 "snapshots":    data.get("snapshots", {}),
                 "alerts":       data.get("alerts", [])
             }
-        except Exception:
-            pass
+        except Exception as e:
+            logging.warning(f"[forecast] JSON load error: {e}")
     return {"generated_at": None, "snapshots": {}, "alerts": []}
 
 # ════════════════════════════════════
