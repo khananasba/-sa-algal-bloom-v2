@@ -22,11 +22,10 @@ build/
 # ML model binaries (large files – regenerate locally)
 ml_engine/*.pkl
 
-# Generated data files
+# Generated data files (keep heatmap + safety scores for Render)
 data/forecasts/
-data/indices/
 data/ocean/
-data/beach_safety_scores.json
+# data/indices/ and data/beach_safety_scores.json are committed so Render can serve them
 
 # IDE
 .vscode/
