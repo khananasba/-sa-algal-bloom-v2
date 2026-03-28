@@ -19,8 +19,6 @@ dist/
 build/
 .eggs/
 
-# ML model binaries (large files – regenerate locally)
-ml_engine/*.pkl
 
 # Generated data files (keep heatmap + safety scores for Render)
 data/forecasts/
