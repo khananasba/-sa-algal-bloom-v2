@@ -1,0 +1,41 @@
+# Environment / secrets
+.env
+
+# Claude Code local settings
+.claude/
+
+# Scratch files
+Untitled-*.txt
+{fetchAll()
+project_dump.txt
+dump_project.py
+
+# Python
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ML model binaries (large files – regenerate locally)
+ml_engine/*.pkl
+
+# Generated data files
+data/forecasts/
+data/indices/
+data/ocean/
+data/beach_safety_scores.json
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node / React build output
+frontend/sa-bloom-dashboard/node_modules/
+frontend/sa-bloom-dashboard/build/
