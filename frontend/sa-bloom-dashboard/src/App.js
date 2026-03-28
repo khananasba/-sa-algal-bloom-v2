@@ -16,8 +16,9 @@ const[weather,setWeather]=useState([]);
 const[safety,setSafety]=useState([]);
 const[hour,setHour]=useState('0');
 useEffect(()=>{fetchAll();},[]);
-async function fetchAll(){try{
-const[h,c,f2,a,w,bs]=await Promise.all([
+async function fetchAll(){
+const ok=r=>r.status==='fulfilled'&&r.value;
+const[h,c,f2,a,w,bs]=await Promise.allSettled([
 axios.get(API+'/bloom-heatmap'),
 axios.get(API+'/cell-counts'),
 axios.get(API+'/forecast/72hr'),
@@ -25,14 +26,13 @@ axios.get(API+'/alerts'),
 axios.get(API+'/weather'),
 axios.get(API+'/beach-safety'),
 ]);
-setHeatmap(h.data);
-setCells(c.data);
-setForecast(f2.data);
-setAlerts(a.data);
-setWeather(w.data);
-if(bs.data&&Array.isArray(bs.data))setSafety(bs.data);
-else if(bs.data&&bs.data.scores)setSafety(bs.data.scores);
-}catch(e){console.error(e);}}
+if(ok(h))setHeatmap(h.value.data);
+if(ok(c)&&Array.isArray(c.value.data))setCells(c.value.data);
+if(ok(f2))setForecast(f2.value.data);
+if(ok(a))setAlerts(a.value.data);
+if(ok(w)&&Array.isArray(w.value.data))setWeather(w.value.data);
+if(ok(bs)){const d=bs.value.data;if(Array.isArray(d))setSafety(d);else if(d&&d.scores)setSafety(d.scores);}
+}
 const particles=forecast?.snapshots?.[hour]?.features||[];
 const op={'0':0.9,'6':0.75,'12':0.6,'24':0.45,'48':0.3,'72':0.15};
 return(<div style={{height:'100vh',display:'flex',flexDirection:'column',fontFamily:'Arial'}}>
