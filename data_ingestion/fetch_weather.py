@@ -52,7 +52,7 @@ def save_to_db(location, data):
                      wind_speed, wind_direction, sea_surface_temp,
                      solar_radiation, wave_height)
                 VALUES ({ph(9)})
-            """,
+            """, (
                 recorded_at,
                 location["name"],
                 location["lat"],
@@ -62,7 +62,7 @@ def save_to_db(location, data):
                 temp[i]       if i < len(temp)        else None,
                 solar[i]      if i < len(solar)       else None,
                 wave[i]       if i < len(wave)        else None,
-            )
+            ))
             count += 1
         except Exception as e:
             continue

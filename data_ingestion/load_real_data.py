@@ -41,7 +41,7 @@ for site,data in latest.items():
     try:dt=datetime.strptime(data['date'],'%Y-%m-%d')
     except:dt=datetime.now()
     sev='Critical' if v>=50000 else 'High' if v>=10000 else 'Medium' if v>=1000 else 'Low'
-    cur.execute(f'INSERT INTO KareniaReadings(recorded_at,beach_name,latitude,longitude,cell_count_per_litre,severity,source) VALUES({ph(7)})',dt,site,lat,lon,int(v),sev,'SA_Gov_CSV')
+    cur.execute(f'INSERT INTO KareniaReadings(recorded_at,beach_name,latitude,longitude,cell_count_per_litre,severity,source) VALUES({ph(7)})',(dt,site,lat,lon,int(v),sev,'SA_Gov_CSV'))
     matched.append({'site':site,'lat':lat,'lon':lon,'val':v,'sev':sev})
 conn.commit()
 conn.close()

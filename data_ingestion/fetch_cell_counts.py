@@ -95,15 +95,15 @@ def seed_realistic_data(cursor):
                 (recorded_at, beach_name, latitude, longitude,
                  cell_count_per_litre, severity, source)
             VALUES ({ph(7)})
-        """,
+        """, (
             now,
             beach["name"],
             beach["lat"],
             beach["lon"],
             cell_count,
             severity,
-            "SA_Government_Seed"
-        )
+            "SA_Government_Seed",
+        ))
         count += 1
 
     return count
@@ -125,10 +125,10 @@ def save_arcgis_features(cursor, features):
                     (recorded_at, beach_name, latitude, longitude,
                      cell_count_per_litre, severity, source)
                 VALUES ({ph(7)})
-            """,
+            """, (
                 now, beach_name, lat, lon,
-                cell_count, severity, "SA_ArcGIS_API"
-            )
+                cell_count, severity, "SA_ArcGIS_API",
+            ))
             count += 1
         except:
             continue

@@ -37,7 +37,7 @@ for ft in features:
         elif karenia>=10000:sev='High'
         elif karenia>=1000:sev='Medium'
         else:sev='Low'
-        cursor.execute(f'INSERT INTO KareniaReadings(recorded_at,beach_name,latitude,longitude,cell_count_per_litre,severity,source) VALUES({ph(7)})',datetime.now(),site_name,lat,lon,int(karenia),sev,'SA_Gov_ArcGIS_Live')
+        cursor.execute(f'INSERT INTO KareniaReadings(recorded_at,beach_name,latitude,longitude,cell_count_per_litre,severity,source) VALUES({ph(7)})',(datetime.now(),site_name,lat,lon,int(karenia),sev,'SA_Gov_ArcGIS_Live'))
         count+=1
     except Exception as e:
         continue

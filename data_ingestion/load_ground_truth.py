@@ -60,7 +60,7 @@ for site,data in latest.items():
     elif val>=1000:sev='Medium'
     else:sev='Low'
     cur.execute(f'INSERT INTO KareniaReadings(recorded_at,beach_name,latitude,longitude,cell_count_per_litre,severity,source) VALUES({ph(7)})',
-        dt,site,lat,lon,int(val),sev,'SA_Gov_Live_Feb2026')
+        (dt,site,lat,lon,int(val),sev,'SA_Gov_Live_Feb2026'))
     inserted+=1
 
 conn.commit()
