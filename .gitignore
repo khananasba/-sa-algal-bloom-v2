@@ -20,9 +20,7 @@ build/
 .eggs/
 
 
-# Generated data files (keep heatmap + safety scores for Render)
-data/forecasts/
-data/ocean/
+# Generated data files (all kept for Render)
 # data/indices/ and data/beach_safety_scores.json are committed so Render can serve them
 
 # IDE
