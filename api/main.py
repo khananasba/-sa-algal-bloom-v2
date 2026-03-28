@@ -6,7 +6,7 @@ import numpy as np
 from datetime import datetime
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from db_config import get_connection, adapt_sql
+from db_config import get_connection, adapt_sql, IS_POSTGRES
 
 app = FastAPI(title="SA Algal Bloom Monitor API")
 
@@ -96,54 +96,72 @@ def cell_counts():
 
 # ════════════════════════════════════
 # ENDPOINT 4 — Weather
-# Queries WeatherReadings from Supabase.
-# Fetches the 1000 most recent rows then deduplicates in Python
-# so one row per location is returned. This avoids correlated
-# subquery issues across SQL Server / PostgreSQL.
+# Returns the single most-recent row per location.
+# PostgreSQL: DISTINCT ON (native, zero duplicates possible)
+# SQL Server:  correlated subquery (original approach)
 # ════════════════════════════════════
 @app.get("/api/weather")
 def weather():
     try:
         conn   = get_connection()
         cursor = conn.cursor()
-        cursor.execute(adapt_sql("""
-            SELECT TOP 1000
-                location_name,
-                latitude,
-                longitude,
-                wind_speed,
-                wind_direction,
-                sea_surface_temp,
-                solar_radiation,
-                wave_height,
-                recorded_at
-            FROM WeatherReadings
-            ORDER BY recorded_at DESC
-        """))
+
+        if IS_POSTGRES:
+            # DISTINCT ON guarantees exactly one row per location_name,
+            # ordered so that the latest recorded_at is kept.
+            cursor.execute("""
+                SELECT DISTINCT ON (location_name)
+                    location_name,
+                    latitude,
+                    longitude,
+                    wind_speed,
+                    wind_direction,
+                    sea_surface_temp,
+                    solar_radiation,
+                    wave_height,
+                    recorded_at
+                FROM weatherreadings
+                ORDER BY location_name, recorded_at DESC
+            """)
+        else:
+            cursor.execute("""
+                SELECT
+                    location_name,
+                    latitude,
+                    longitude,
+                    wind_speed,
+                    wind_direction,
+                    sea_surface_temp,
+                    solar_radiation,
+                    wave_height,
+                    recorded_at
+                FROM WeatherReadings
+                WHERE recorded_at = (
+                    SELECT MAX(recorded_at)
+                    FROM WeatherReadings w2
+                    WHERE w2.location_name = WeatherReadings.location_name
+                )
+                ORDER BY location_name
+            """)
+
         rows = cursor.fetchall()
         conn.close()
-
-        # Keep only the most recent row per location (first occurrence after ORDER BY DESC)
-        seen   = set()
-        result = []
-        for r in rows:
-            loc = r[0]
-            if loc not in seen:
-                seen.add(loc)
-                result.append({
-                    "location_name":    r[0],
-                    "latitude":         r[1],
-                    "longitude":        r[2],
-                    "wind_speed":       r[3],
-                    "wind_direction":   r[4],
-                    "sea_surface_temp": r[5],
-                    "solar_radiation":  r[6],
-                    "wave_height":      r[7],
-                    "recorded_at":      r[8].isoformat() if r[8] else None
-                })
-        return result
+        return [
+            {
+                "location_name":    r[0],
+                "latitude":         r[1],
+                "longitude":        r[2],
+                "wind_speed":       r[3],
+                "wind_direction":   r[4],
+                "sea_surface_temp": r[5],
+                "solar_radiation":  r[6],
+                "wave_height":      r[7],
+                "recorded_at":      r[8].isoformat() if r[8] else None
+            }
+            for r in rows
+        ]
     except Exception as e:
-        return []   # return empty list, never an error object
+        return []   # always return a list, never an error object
 
 # ════════════════════════════════════
 # ENDPOINT 5 — 72hr forecast
