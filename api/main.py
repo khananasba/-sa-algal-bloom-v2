@@ -17,6 +17,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ── Absolute project root — works regardless of uvicorn launch directory ──
+# api/main.py lives at <root>/api/main.py  →  root = two levels up from __file__
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+def root_path(*parts):
+    """Return an absolute path relative to the project root."""
+    return os.path.join(ROOT, *parts)
+
 # ── Load ML model once at startup ──
 MODEL = None
 ENCODER = None
@@ -24,9 +32,9 @@ ENCODER = None
 def load_model():
     global MODEL, ENCODER
     try:
-        MODEL   = joblib.load("ml_engine/bloom_model.pkl")
-        ENCODER = joblib.load("ml_engine/label_encoder.pkl")
-        print("ML model loaded OK")
+        MODEL   = joblib.load(root_path("ml_engine", "bloom_model.pkl"))
+        ENCODER = joblib.load(root_path("ml_engine", "label_encoder.pkl"))
+        print(f"ML model loaded OK from {root_path('ml_engine', 'bloom_model.pkl')}")
     except Exception as e:
         print(f"Model load warning: {e}")
 
@@ -49,7 +57,7 @@ def health():
 # ════════════════════════════════════
 @app.get("/api/bloom-heatmap")
 def bloom_heatmap():
-    path = "data/indices/bloom_heatmap_latest.geojson"
+    path = root_path("data", "indices", "bloom_heatmap_latest.geojson")
     if os.path.exists(path):
         try:
             with open(path) as f:
@@ -168,7 +176,7 @@ def weather():
 # ════════════════════════════════════
 @app.get("/api/forecast/72hr")
 def forecast_72hr():
-    path = "data/forecasts/forecast_latest.json"
+    path = root_path("data", "forecasts", "forecast_latest.json")
     if os.path.exists(path):
         try:
             with open(path) as f:
@@ -187,7 +195,7 @@ def forecast_72hr():
 # ════════════════════════════════════
 @app.get("/api/alerts")
 def alerts():
-    path = "data/forecasts/forecast_latest.json"
+    path = root_path("data", "forecasts", "forecast_latest.json")
     active = []
     if os.path.exists(path):
         try:
@@ -268,7 +276,7 @@ def beach_safety():
         pass
 
     # ── Fallback: read committed JSON file ──
-    path = "data/beach_safety_scores.json"
+    path = root_path("data", "beach_safety_scores.json")
     if os.path.exists(path):
         try:
             with open(path, encoding="utf-8") as f:
