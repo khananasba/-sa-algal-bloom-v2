@@ -37,7 +37,7 @@ const particles=forecast?.snapshots?.[hour]?.features||[];
 const op={'0':0.9,'6':0.75,'12':0.6,'24':0.45,'48':0.3,'72':0.15};
 return(<div style={{height:'100vh',display:'flex',flexDirection:'column',fontFamily:'Arial'}}>
 <div style={{background:'#1a237e',color:'#fff',padding:'0 20px',height:56,display:'flex',alignItems:'center',gap:16,flexShrink:0}}>
-<span style={{fontSize:18,fontWeight:'bold'}}>SA Algal Bloom Monitor</span>
+<span style={{fontSize:18,fontWeight:'bold'}}>SA Algal Bloom Monitor{/* v1.1 */}</span>
 {['heatmap','forecast','cellcounts'].map(l=>(<button key={l} onClick={()=>setLayer(l)} style={{padding:'6px 14px',borderRadius:20,border:'none',cursor:'pointer',background:layer===l?'#fff':'rgba(255,255,255,0.15)',color:layer===l?'#1a237e':'#fff'}}>{l==='heatmap'?'Bloom Heatmap':l==='forecast'?'72hr Forecast':'Ground Truth'}</button>))}
 <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:8}}><span style={{width:10,height:10,borderRadius:'50%',background:alerts.total_alerts>0?'#ff5252':'#69f0ae',display:'inline-block'}}/><span style={{fontSize:13}}>{alerts.total_alerts>0?alerts.total_alerts+' ALERT':'ALL CLEAR'}</span></div></div>
 <div style={{flex:1,display:'flex',overflow:'hidden'}}>
