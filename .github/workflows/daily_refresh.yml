@@ -1,0 +1,52 @@
+name: Daily Data Refresh
+
+on:
+  schedule:
+    - cron: '0 2 * * *'   # 2:00 AM UTC = 12:30 PM ACST (Adelaide)
+  workflow_dispatch:        # allows manual trigger from GitHub Actions tab
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Wake Render service (handles cold start)
+        run: |
+          echo "Pinging health endpoint to wake service..."
+          for i in 1 2 3 4 5; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              --max-time 30 \
+              https://sa-algal-bloom.onrender.com/api/health)
+            echo "  Attempt $i: HTTP $STATUS"
+            if [ "$STATUS" = "200" ]; then
+              echo "  Service is awake."
+              break
+            fi
+            sleep 15
+          done
+
+      - name: Trigger data refresh
+        run: |
+          echo "POSTing to /api/refresh..."
+          RESPONSE=$(curl -s -X POST \
+            --max-time 300 \
+            -H "X-Refresh-Key: ${{ secrets.REFRESH_KEY }}" \
+            -H "Content-Type: application/json" \
+            https://sa-algal-bloom.onrender.com/api/refresh)
+
+          echo "--- Raw response ---"
+          echo "$RESPONSE"
+          echo "--- End response ---"
+
+          # Pretty-print if jq is available
+          echo "$RESPONSE" | jq '.' 2>/dev/null || true
+
+          # Fail the workflow if the API returned an error status
+          STATUS=$(echo "$RESPONSE" | jq -r '.status' 2>/dev/null)
+          if [ "$STATUS" = "error" ]; then
+            echo "Refresh returned error status"
+            exit 1
+          fi
+
+          echo "Refresh completed successfully."
