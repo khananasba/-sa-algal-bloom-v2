@@ -24,23 +24,41 @@ jobs:
       - name: Trigger data refresh
         run: |
           echo "POSTing to /api/refresh..."
-          RESPONSE=$(curl -s -X POST \
+          HTTP_CODE=$(curl -s -o /tmp/refresh_response.txt -w "%{http_code}" \
             --max-time 600 \
+            -X POST \
             -H "X-Refresh-Key: ${{ secrets.REFRESH_KEY }}" \
             -H "Content-Type: application/json" \
             https://sa-algal-bloom.onrender.com/api/refresh)
 
-          echo "--- Raw response ---"
-          echo "$RESPONSE"
+          RESPONSE=$(cat /tmp/refresh_response.txt)
+
+          echo "--- HTTP status code: $HTTP_CODE ---"
+          echo "--- Raw response (first 1000 chars) ---"
+          echo "$RESPONSE" | head -c 1000
+          echo ""
           echo "--- End response ---"
 
-          # Pretty-print if jq is available
+          # Check if response looks like HTML (Render crash page)
+          if echo "$RESPONSE" | grep -qi "<!doctype\|<html"; then
+            echo "ERROR: Got HTML response instead of JSON — Render service likely crashed on startup"
+            echo "Check Render logs at: https://dashboard.render.com"
+            exit 1
+          fi
+
+          # Check HTTP code
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "ERROR: HTTP $HTTP_CODE — expected 200"
+            exit 1
+          fi
+
+          # Pretty-print JSON if jq is available
           echo "$RESPONSE" | jq '.' 2>/dev/null || true
 
-          # Fail the workflow if the API returned an error status
+          # Fail if API returned error status
           STATUS=$(echo "$RESPONSE" | jq -r '.status' 2>/dev/null)
           if [ "$STATUS" = "error" ]; then
-            echo "Refresh returned error status"
+            echo "ERROR: Refresh returned error status"
             exit 1
           fi
 
