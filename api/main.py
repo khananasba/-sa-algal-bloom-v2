@@ -5,7 +5,7 @@ import logging
 import joblib
 import numpy as np
 from datetime import datetime
-from fastapi import FastAPI, Header
+from fastapi import FastAPI, Header, Response
 from fastapi.middleware.cors import CORSMiddleware
 from db_config import get_connection, adapt_sql, IS_POSTGRES
 
@@ -86,8 +86,8 @@ def _meta(source_key, file_path=None):
 # ════════════════════════════════════
 # ENDPOINT 1 — Health check
 # ════════════════════════════════════
-@app.get("/api/health")
-def health():
+@app.api_route("/api/health", methods=["GET", "HEAD"])
+def health(response: Response):
     return {
         "status":    "ok",
         "timestamp": datetime.now().isoformat(),
