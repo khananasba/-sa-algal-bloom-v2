@@ -8,29 +8,24 @@ on:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
 
     steps:
       - name: Wake Render service (handles cold start)
         run: |
           echo "Pinging health endpoint to wake service..."
           for i in 1 2 3 4 5; do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-              --max-time 30 \
-              https://sa-algal-bloom.onrender.com/api/health)
-            echo "  Attempt $i: HTTP $STATUS"
-            if [ "$STATUS" = "200" ]; then
-              echo "  Service is awake."
-              break
-            fi
-            sleep 15
+            echo "Attempt $i of 5..."
+            curl -f --max-time 30 https://sa-algal-bloom.onrender.com/api/health && break
+            echo "Sleeping 30s before next attempt..."
+            sleep 30
           done
 
       - name: Trigger data refresh
         run: |
           echo "POSTing to /api/refresh..."
           RESPONSE=$(curl -s -X POST \
-            --max-time 300 \
+            --max-time 600 \
             -H "X-Refresh-Key: ${{ secrets.REFRESH_KEY }}" \
             -H "Content-Type: application/json" \
             https://sa-algal-bloom.onrender.com/api/refresh)
