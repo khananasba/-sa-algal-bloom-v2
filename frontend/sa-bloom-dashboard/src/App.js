@@ -35,20 +35,20 @@ if(ok(bs)){const d=bs.value.data;if(Array.isArray(d))setSafety(d);else if(d&&d.s
 }
 const particles=forecast?.snapshots?.[hour]?.features||[];
 const op={'0':0.9,'6':0.75,'12':0.6,'24':0.45,'48':0.3,'72':0.15};
-return(<div style={{height:'100vh',display:'flex',flexDirection:'column',fontFamily:'Arial'}}>
-<div style={{background:'#1a237e',color:'#fff',padding:'0 20px',height:56,display:'flex',alignItems:'center',gap:16,flexShrink:0}}>
-<span style={{fontSize:18,fontWeight:'bold'}}>SA Algal Bloom Monitor{/* v1.1 */}</span>
-{['heatmap','forecast','cellcounts'].map(l=>(<button key={l} onClick={()=>setLayer(l)} style={{padding:'6px 14px',borderRadius:20,border:'none',cursor:'pointer',background:layer===l?'#fff':'rgba(255,255,255,0.15)',color:layer===l?'#1a237e':'#fff'}}>{l==='heatmap'?'Bloom Heatmap':l==='forecast'?'72hr Forecast':'Ground Truth'}</button>))}
-<div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:8}}><span style={{width:10,height:10,borderRadius:'50%',background:alerts.total_alerts>0?'#ff5252':'#69f0ae',display:'inline-block'}}/><span style={{fontSize:13}}>{alerts.total_alerts>0?alerts.total_alerts+' ALERT':'ALL CLEAR'}</span></div></div>
-<div style={{flex:1,display:'flex',overflow:'hidden'}}>
-<div style={{flex:1}}><MapContainer center={[-35.3,138.5]} zoom={7} style={{height:'100%',width:'100%'}}>
+return(<div className="app-shell">
+<div className="navbar">
+<span className="nav-title">SA Algal Bloom Monitor{/* v1.1 */}</span>
+<div className="nav-buttons">{['heatmap','forecast','cellcounts'].map(l=>(<button key={l} onClick={()=>setLayer(l)} style={{padding:'6px 14px',borderRadius:20,border:'none',cursor:'pointer',background:layer===l?'#fff':'rgba(255,255,255,0.15)',color:layer===l?'#1a237e':'#fff'}}>{l==='heatmap'?'Bloom Heatmap':l==='forecast'?'72hr Forecast':'Ground Truth'}</button>))}</div>
+<div className="nav-alert"><span style={{width:10,height:10,borderRadius:'50%',background:alerts.total_alerts>0?'#ff5252':'#69f0ae',display:'inline-block'}}/><span style={{fontSize:13}}>{alerts.total_alerts>0?alerts.total_alerts+' ALERT':'ALL CLEAR'}</span></div></div>
+<div className="content-area">
+<div className="map-area"><MapContainer center={[-35.3,138.5]} zoom={7} style={{height:'100%',width:'100%'}}>
 <TileLayer url='https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png' attribution='CartoDB'/>
 {ZONES.map(z=>(<Polygon key={z.name} positions={z.coords} pathOptions={{color:'#d32f2f',weight:2,fill:false,dashArray:'6 4'}}><Popup>{z.name}</Popup></Polygon>))}
 {layer==='heatmap'&&heatmap?.features?.map((ft,i)=>{const{lat,lon,severity}=ft.properties;if(severity==='no_bloom')return null;return<CircleMarker key={i} center={[lat,lon]} radius={6} pathOptions={{fillColor:SC[severity],color:'none',fillOpacity:0.6}}><Popup><b>{severity}</b><br/>SFABI:{ft.properties.sfabi}<br/>Cells:{ft.properties.cell_count?.toLocaleString()}</Popup></CircleMarker>;})}
 {layer==='forecast'&&particles.map((ft,i)=>{const[lon,lat]=ft.geometry.coordinates;return<CircleMarker key={i} center={[lat,lon]} radius={3} pathOptions={{fillColor:'#1565c0',color:'none',fillOpacity:op[hour]||0.5}}/>;})}
 {layer==='cellcounts'&&cells.map((c,i)=>(<CircleMarker key={i} center={[c.latitude,c.longitude]} radius={10} pathOptions={{fillColor:SC[c.severity]||'#888',color:'#fff',weight:1.5,fillOpacity:0.85}}><Popup><b>{c.beach_name}</b><br/>{c.cell_count_per_litre?.toLocaleString()} cells/L<br/><span style={{background:SC[c.severity],color:'#fff',padding:'2px 8px',borderRadius:10,fontSize:12}}>{c.severity}</span></Popup></CircleMarker>))}
 </MapContainer></div>
-<div style={{width:320,background:'#f5f5f5',overflowY:'auto',borderLeft:'1px solid #ddd',padding:16,flexShrink:0}}>
+<div className="sidebar">
 <h3 style={{margin:'0 0 8px',color:'#1a237e',fontSize:14}}>Active Alerts</h3>
 {alerts.total_alerts===0?<div style={{background:'#e8f5e9',padding:10,borderRadius:8,color:'#2e7d32',fontSize:13}}>All zones clear</div>:alerts.alerts.map((a,i)=>(<div key={i} style={{background:'#fff',borderLeft:'5px solid #d32f2f',borderRadius:8,padding:10,marginBottom:8}}><b style={{fontSize:13}}>{a.zone_name}</b><br/><span style={{background:'#d32f2f',color:'#fff',padding:'1px 8px',borderRadius:10,fontSize:11}}>{a.severity}</span><div style={{fontSize:12,color:'#555',marginTop:4}}>Bloom in {a.predicted_hour}h</div></div>))}
 {layer==='forecast'&&(<div style={{marginTop:16,background:'#fff',padding:12,borderRadius:8}}><h3 style={{margin:'0 0 8px',color:'#1a237e',fontSize:14}}>Forecast hour</h3><select value={hour} onChange={e=>setHour(e.target.value)} style={{width:'100%',padding:6,borderRadius:6,border:'1px solid #ccc'}}>{['0','6','12','24','48','72'].map(h=><option key={h} value={h}>T+{h} hours</option>)}</select><div style={{fontSize:12,color:'#666',marginTop:6}}>Particles: {particles.length}</div></div>)}
