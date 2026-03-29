@@ -23,10 +23,10 @@ def fetch_weather_for_location(location):
         "hourly": "temperature_2m,wind_speed_10m,wind_direction_10m,shortwave_radiation,wave_height",
         "daily":  "temperature_2m_max,wind_speed_10m_max",
         "past_days": 1,
-        "forecast_days": 1,
+        "forecast_days": 2,
         "timezone": "Australia/Adelaide"
     }
-    response = requests.get(url, params=params, timeout=15)
+    response = requests.get(url, params=params, timeout=10)
     response.raise_for_status()
     return response.json()
 
