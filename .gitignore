@@ -1,6 +1,12 @@
 # Environment / secrets
 .env
 
+# GEE service account key files — never commit these
+smart-464108*.json
+*service_account*.json
+*-988b032109f5*
+credentials/
+
 # Claude Code local settings
 .claude/
 
