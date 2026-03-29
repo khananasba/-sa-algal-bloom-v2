@@ -22,7 +22,7 @@ def fetch_weather_for_location(location):
         "longitude": location["lon"],
         "hourly": "temperature_2m,wind_speed_10m,wind_direction_10m,shortwave_radiation,wave_height",
         "daily":  "temperature_2m_max,wind_speed_10m_max",
-        "past_days": 7,
+        "past_days": 1,
         "forecast_days": 1,
         "timezone": "Australia/Adelaide"
     }

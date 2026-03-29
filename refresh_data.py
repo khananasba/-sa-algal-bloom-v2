@@ -180,7 +180,7 @@ def run_refresh():
 
     # ── 1. fetch_weather ──────────────────────────────────────────────────────
     try:
-        rc, out = _run("data_ingestion/fetch_weather.py", timeout=90)
+        rc, out = _run("data_ingestion/fetch_weather.py", timeout=180)
         if rc != 0:
             raise RuntimeError(out[-400:])
         rows = 0
