@@ -8,6 +8,8 @@ services:
     healthCheckPath: /api/health
     envVars:
       - key: DATABASE_URL
-        sync: false          # you paste the Supabase URL in the Render dashboard
+        sync: false          # paste the Supabase connection URL in the Render dashboard
+      - key: REFRESH_KEY
+        sync: false          # set a strong random value, e.g.: openssl rand -hex 32
       - key: PYTHON_VERSION
         value: 3.11.0

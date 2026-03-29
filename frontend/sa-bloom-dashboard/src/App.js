@@ -27,10 +27,11 @@ axios.get(API+'/weather'),
 axios.get(API+'/beach-safety'),
 ]);
 if(ok(h))setHeatmap(h.value.data);
-if(ok(c)&&Array.isArray(c.value.data))setCells(c.value.data);
+if(ok(c)){const cr=c.value.data;setCells(Array.isArray(cr)?cr:(cr.readings||[]));}
 if(ok(f2))setForecast(f2.value.data);
 if(ok(a))setAlerts(a.value.data);
-if(ok(w)&&Array.isArray(w.value.data))setWeather(w.value.data);
+if(ok(w)){const wr=w.value.data;setWeather(Array.isArray(wr)?wr:(wr.readings||[]));}
+
 if(ok(bs)){const d=bs.value.data;if(Array.isArray(d))setSafety(d);else if(d&&d.scores)setSafety(d.scores);}
 }
 const particles=forecast?.snapshots?.[hour]?.features||[];

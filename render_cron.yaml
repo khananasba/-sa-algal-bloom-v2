@@ -1,0 +1,30 @@
+# Render Cron Job — SA Algal Bloom Monitor daily data refresh
+#
+# This service runs daily at 2:00 AM UTC (12:30 PM ACST Adelaide time).
+# It wakes the web service and calls POST /api/refresh to update all data sources.
+#
+# Setup:
+#   1. In the Render dashboard, create a new "Cron Job" service
+#   2. Connect the same GitHub repo
+#   3. Set the environment variable REFRESH_KEY to the same value as the web service
+#   4. Render will use this file automatically if you select "render_cron.yaml"
+#      OR configure manually using the settings below.
+#
+# Manual Render dashboard settings (if not using this file):
+#   Runtime:        Python
+#   Build command:  pip install requests
+#   Command:        python cron_trigger.py
+#   Schedule:       0 2 * * *
+#   Plan:           Free
+
+services:
+  - type: cron
+    name: sa-algal-bloom-refresh
+    runtime: python
+    plan: free
+    schedule: "0 2 * * *"          # 2:00 AM UTC = 12:30 PM ACST
+    buildCommand: pip install requests
+    startCommand: python cron_trigger.py
+    envVars:
+      - key: REFRESH_KEY
+        sync: false                  # must match the REFRESH_KEY on the web service
