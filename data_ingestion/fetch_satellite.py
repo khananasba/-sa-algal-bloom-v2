@@ -8,9 +8,13 @@ os.makedirs('data/indices', exist_ok=True)
 # ── Authentication ─────────────────────────────────────────────────────────────
 GEE_SA_JSON = os.environ.get('GEE_SERVICE_ACCOUNT_JSON')
 
+print(f"GEE_SERVICE_ACCOUNT_JSON present: {bool(GEE_SA_JSON)}")
+
 if GEE_SA_JSON:
     try:
-        key_data    = json_lib.loads(GEE_SA_JSON)
+        key_data = json_lib.loads(GEE_SA_JSON)
+        print(f"JSON parsed OK. client_email: {key_data.get('client_email')}")
+        print(f"JSON preview (first 50 chars): {GEE_SA_JSON[:50]}")
         credentials = ee.ServiceAccountCredentials(
             key_data['client_email'],
             key_data=json_lib.dumps(key_data)
@@ -18,14 +22,14 @@ if GEE_SA_JSON:
         ee.Initialize(credentials, project='smart-464108')
         print("GEE authenticated via service account")
     except Exception as e:
-        print(f"GEE service account auth failed: {e}")
+        print(f"GEE service account auth failed: {type(e).__name__}: {e}")
         raise
 else:
     try:
         ee.Initialize(project='smart-464108')
         print("GEE authenticated via local credentials")
     except Exception as e:
-        print(f"GEE local auth failed: {e}")
+        print(f"GEE local auth failed: {type(e).__name__}: {e}")
         raise
 
 # ── Fetch Sentinel-2 SFABI ────────────────────────────────────────────────────

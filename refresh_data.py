@@ -257,6 +257,8 @@ def run_refresh():
     heatmap_backup = _backup(HEATMAP_PATH)
     try:
         rc, out = _run("data_ingestion/fetch_satellite.py", timeout=180)
+        print(f"[satellite] rc={rc}")
+        print(f"[satellite] output:\n{out}")
         if rc == 0 and _valid_geojson(HEATMAP_PATH):
             satellite_ok = True
             try:
@@ -269,11 +271,13 @@ def run_refresh():
             summary["satellite"] = {"status": "OK", "message": msg}
             print(f"[OK]   satellite        - {msg}")
         else:
-            raise RuntimeError("GEE returned no valid features")
+            # Surface the full script output so the exact error is visible in logs
+            error_detail = out.strip()[-600:] if out.strip() else "no output"
+            raise RuntimeError(f"rc={rc} | {error_detail}")
     except Exception as e:
         _restore(HEATMAP_PATH, heatmap_backup)
         prev = (sources.get("satellite", {}).get("last_success") or "")[:10] or "unknown"
-        msg  = f"GEE auth error, keeping heatmap from {prev}"
+        msg  = f"satellite FAIL (keeping heatmap from {prev}): {str(e)[:300]}"
         sources.setdefault("satellite", {}).update({"status": "FAIL", "message": msg})
         summary["satellite"] = {"status": "FAIL", "message": msg}
         print(f"[FAIL] satellite        - {msg}")
