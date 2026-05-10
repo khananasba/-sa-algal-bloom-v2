@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 import json
 import os
 import sys
@@ -6,6 +9,7 @@ import joblib
 import numpy as np
 from datetime import datetime
 from fastapi import FastAPI, Header, Response
+from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from db_config import get_connection, adapt_sql, IS_POSTGRES
 
@@ -465,6 +469,73 @@ def trigger_refresh(x_refresh_key: str = Header(default="")):
         return {"status": "completed", **result}
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+
+# ════════════════════════════════════
+# ENDPOINT 11 — Algal Assistant
+# POST /api/algal-assistant
+# ════════════════════════════════════
+class AssistantRequest(BaseModel):
+    question: str
+
+
+@app.post("/api/algal-assistant")
+def algal_assistant(req: AssistantRequest):
+    """RAG-powered algal bloom assistant using OpenAI GPT-4o."""
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        return {
+            "answer": (
+                "OPENAI_API_KEY is not set. Please set it as an environment "
+                "variable to use the Algal Assistant."
+            ),
+            "live_data_fetched": False,
+        }
+
+    try:
+        from algal_assistant.rag_engine import (
+            retrieve_context, get_live_context, build_prompt,
+        )
+        from openai import OpenAI
+    except ImportError as e:
+        return {
+            "answer": (
+                f"Algal Assistant dependencies not installed: {e}. "
+                "Run: pip install openai chromadb"
+            ),
+            "live_data_fetched": False,
+        }
+
+    live_data = ""
+    live_data_fetched = False
+    try:
+        live_data = get_live_context()
+        live_data_fetched = bool(live_data)
+    except Exception as e:
+        logging.warning(f"[algal-assistant] Live context error: {e}")
+
+    chunks: list = []
+    try:
+        chunks = retrieve_context(req.question, n=3)
+    except Exception as e:
+        logging.warning(f"[algal-assistant] RAG retrieval error: {e}")
+
+    try:
+        messages = build_prompt(req.question, live_data, chunks)
+        client = OpenAI(api_key=api_key)
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=messages,
+            max_tokens=800,
+        )
+        answer = response.choices[0].message.content
+        return {"answer": answer, "live_data_fetched": live_data_fetched}
+    except Exception as e:
+        logging.error(f"[algal-assistant] OpenAI API error: {e}")
+        return {
+            "answer": f"The Algal Assistant encountered an error: {e}",
+            "live_data_fetched": live_data_fetched,
+        }
 
 
 # ════════════════════════════════════

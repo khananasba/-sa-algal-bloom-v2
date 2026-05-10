@@ -1,0 +1,79 @@
+Important note on data priority:
+Ground truth water sampling is the most accurate data source.
+SA Government field scientists collect water samples and count
+Karenia cells under a microscope giving exact cell counts
+in cells per litre at specific beach locations.
+This platform has 509 ground truth readings from 512 SA beach
+sites collected since September 2025.
+Satellite SFABI readings are a supporting indicator that covers
+the entire coastline but cannot measure exact cell counts.
+When ground truth data is available for a specific beach always
+use the cell count in cells per litre as the primary safety indicator.
+Satellite data fills the gaps for areas between sampling sites
+and gives advance warning before field sampling is conducted.
+
+The SA Algal Bloom Monitor uses Sentinel-2 satellite imagery
+processed via Google Earth Engine to detect algal blooms from space.
+Sentinel-2 passes over South Australia every 5 days.
+The platform automatically searches the last 6 months for the
+most recent cloud-free satellite image.
+The most recent satellite image processed was from May 8 2026
+which is 2 days ago.
+48 real Sentinel-2 satellite pixels were sampled across SA
+coastal waters from this image.
+Current SFABI readings from May 8 2026 satellite pass:
+minimum SFABI 0.0202, maximum SFABI 0.4358, mean SFABI 0.1440.
+
+SFABI Spectral Fluorescence Algal Bloom Index explained:
+SFABI uses Sentinel-2 bands B2 blue 490nm, B3 green 560nm,
+B6 red-edge 740nm, B7 red-edge 783nm, B12 shortwave infrared 2190nm.
+Formula: SFABI equals B6 plus B7 minus B2 minus B3 minus B12
+divided by B6 plus B7 plus B2 plus B3 plus B12.
+Karenia brevis produces chlorophyll-a which absorbs blue and
+green light and strongly reflects red-edge wavelengths.
+A high SFABI score means the ocean surface is reflecting more
+red-edge light than blue-green indicating an active bloom.
+SFABI above 0.15 is classified as High severity bloom.
+SFABI above 0.05 is classified as Medium severity bloom.
+SFABI above 0.02 is classified as Low severity bloom.
+SFABI below 0.02 is no bloom detected and filtered out.
+The current maximum SFABI of 0.4358 indicates areas of High
+severity bloom detected from space as of May 8 2026.
+The current mean SFABI of 0.1440 indicates moderate bloom
+activity across SA coastal waters overall.
+
+NDCI Normalized Difference Chlorophyll Index explained:
+NDCI uses bands B4 red and B5 red-edge.
+Formula: NDCI equals B5 minus B4 divided by B5 plus B4.
+Higher NDCI values indicate higher chlorophyll concentration
+which correlates directly with algal bloom intensity.
+
+How satellite compares to ground truth CSV data:
+The platform combines two data sources for maximum accuracy.
+Sentinel-2 satellite covers the entire SA coastline simultaneously
+unlike point-based water sampling which only covers tested sites.
+The SA Government Karenia CSV data contains 509 ground truth
+readings from water sampling at 512 unique sites since Sep 2025.
+The CSV provides exact Karenia cell counts in cells per litre
+which the satellite cannot measure directly.
+Satellite detects bloom signature across wide areas and gives
+early warning before ground sampling confirms it.
+Ground truth CSV confirms satellite detections with actual
+Karenia cell count measurements at specific beach locations.
+The combination of satellite SFABI plus ground truth cell counts
+plus live BOM weather data gives the most complete bloom picture
+available anywhere in South Australia.
+
+Satellite advantages:
+Satellite covers the entire SA coastline in one image pass.
+Satellite detects bloom conditions before they become visible
+or measurable by ground sampling giving 3 to 5 days earlier warning.
+Satellite provides spatial coverage showing where blooms are
+spreading across the ocean not just individual beach points.
+
+Satellite limitations:
+Cloud cover blocks satellite readings requiring use of the
+most recent cloud-free imagery which may be several days old.
+Satellite detects chlorophyll signature not exact Karenia cell counts
+so ground truth water sampling is needed to confirm the species
+and measure exact cell concentrations.

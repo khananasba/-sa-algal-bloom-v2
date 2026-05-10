@@ -11,5 +11,7 @@ services:
         sync: false          # paste the Supabase connection URL in the Render dashboard
       - key: REFRESH_KEY
         sync: false          # set a strong random value, e.g.: openssl rand -hex 32
+      - key: OPENAI_API_KEY
+        sync: false          # paste your OpenAI API key in the Render dashboard
       - key: PYTHON_VERSION
         value: 3.11.0

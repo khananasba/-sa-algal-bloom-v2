@@ -1,0 +1,11 @@
+SA Health official Karenia thresholds for South Australia.
+Danger threshold: 10000 cells per litre - beach closure recommended.
+Caution threshold: 1000 cells per litre - exercise caution.
+Safe: below 1000 cells per litre.
+SA Health is the only official authority for beach safety decisions.
+Karenia brevis causes neurotoxic shellfish poisoning in humans.
+Symptoms include respiratory irritation, eye irritation, nausea, vomiting.
+Do not eat shellfish, fish, or seafood from affected areas.
+Do not swim, surf, or wade in affected waters during High or Critical alerts.
+Children and people with respiratory conditions are most at risk.
+Pets should be kept away from affected beaches.

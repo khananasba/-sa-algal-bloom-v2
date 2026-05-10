@@ -16,6 +16,9 @@ Untitled-*.txt
 project_dump.txt
 dump_project.py
 
+# ChromaDB local vector store — rebuilt in-memory on Render, not needed in git
+algal_assistant/chroma_db/
+
 # Python
 venv/
 __pycache__/

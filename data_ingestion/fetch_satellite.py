@@ -1,7 +1,7 @@
 import ee
 import json as json_lib
 import os
-from datetime import datetime
+from datetime import datetime, date, timedelta
 
 os.makedirs('data/indices', exist_ok=True)
 
@@ -34,11 +34,15 @@ else:
 
 # ── Fetch Sentinel-2 SFABI ────────────────────────────────────────────────────
 print('Fetching Sentinel-2 for SA gulfs...')
+start_date = (date.today() - timedelta(days=180)).strftime('%Y-%m-%d')
+end_date = date.today().strftime('%Y-%m-%d')
+print(f'Date range: {start_date} to {end_date}')
+
 bbox = ee.Geometry.Rectangle([137.6, -35.6, 138.5, -34.6])
 s2 = (ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED')
         .filterBounds(bbox)
-        .filterDate('2025-09-01', '2026-03-16')
-        .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 50))
+        .filterDate(start_date, end_date)
+        .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 70))
         .sort('system:time_start', False)
         .first())
 print('Image date:', ee.Date(s2.get('system:time_start')).format('YYYY-MM-dd').getInfo())
