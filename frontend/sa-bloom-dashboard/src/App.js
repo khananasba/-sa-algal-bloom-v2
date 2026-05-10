@@ -3,7 +3,7 @@ import{MapContainer,TileLayer,CircleMarker,Polygon,Popup}from 'react-leaflet';
 import axios from 'axios';
 import 'leaflet/dist/leaflet.css';
 import './App.css';
-const API='https://sa-algal-bloom.onrender.com/api';
+const API='https://sa-algal-bloom-v2-api.onrender.com/api';
 const SC={Critical:'#d32f2f',High:'#f57c00',Medium:'#fbc02d',Low:'#388e3c',no_bloom:'transparent'};
 const ZONES=[{name:'Adelaide metro beaches',coords:[[-35.05,138.35],[-35.05,138.65],[-35.45,138.65],[-35.45,138.35]]},{name:'Port Lincoln tuna farm',coords:[[-34.60,135.80],[-34.60,135.98],[-34.80,135.98],[-34.80,135.80]]},{name:'Goolwa desalination',coords:[[-35.45,138.75],[-35.45,138.92],[-35.60,138.92],[-35.60,138.75]]}];
 const CAMERAS=[
@@ -58,7 +58,7 @@ setChatInput('');
 setMessages(m=>[...m,{role:'user',text:q,ts:new Date()}]);
 setChatTyping(true);
 try{
-const r=await axios.post('http://localhost:8000/api/algal-assistant',{question:q},{timeout:30000});
+const r=await axios.post(API+'/algal-assistant',{question:q},{timeout:30000});
 setMessages(m=>[...m,{role:'assistant',text:r.data.answer,ts:new Date()}]);
 }catch(e){
 setMessages(m=>[...m,{role:'assistant',text:"Sorry, I'm unable to connect to the Algal Assistant. Please ensure the API is running.",ts:new Date()}]);
