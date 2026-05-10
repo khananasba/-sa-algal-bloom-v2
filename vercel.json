@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd frontend/sa-bloom-dashboard && npm install && CI=false npm run build",
+  "outputDirectory": "frontend/sa-bloom-dashboard/build",
+  "installCommand": "echo 'skip root install'",
+  "framework": null
+}
