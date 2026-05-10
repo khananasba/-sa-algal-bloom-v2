@@ -3,7 +3,7 @@ import{MapContainer,TileLayer,CircleMarker,Polygon,Popup}from 'react-leaflet';
 import axios from 'axios';
 import 'leaflet/dist/leaflet.css';
 import './App.css';
-const API='https://sa-algal-bloom-v2-api.onrender.com/api';
+const API='https://sa-algal-bloom-v2.onrender.com/api';
 const SC={Critical:'#d32f2f',High:'#f57c00',Medium:'#fbc02d',Low:'#388e3c',no_bloom:'transparent'};
 const ZONES=[{name:'Adelaide metro beaches',coords:[[-35.05,138.35],[-35.05,138.65],[-35.45,138.65],[-35.45,138.35]]},{name:'Port Lincoln tuna farm',coords:[[-34.60,135.80],[-34.60,135.98],[-34.80,135.98],[-34.80,135.80]]},{name:'Goolwa desalination',coords:[[-35.45,138.75],[-35.45,138.92],[-35.60,138.92],[-35.60,138.75]]}];
 const CAMERAS=[
