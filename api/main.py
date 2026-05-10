@@ -140,25 +140,79 @@ def debug():
 # ════════════════════════════════════
 # ENDPOINT 2 — Bloom heatmap
 # ════════════════════════════════════
+def _cell_counts_as_geojson() -> dict:
+    """
+    Build a GeoJSON FeatureCollection from live KareniaReadings as a fallback
+    when the satellite bloom_heatmap_latest.geojson has no features.
+
+    Returns:
+        GeoJSON FeatureCollection with lat/lon/severity/cell_count properties
+        matching the format the frontend expects for circle markers.
+    """
+    try:
+        conn   = get_connection()
+        cursor = conn.cursor()
+        cursor.execute(adapt_sql("""
+            SELECT TOP 100
+                beach_name, latitude, longitude,
+                cell_count_per_litre, severity
+            FROM KareniaReadings
+            ORDER BY recorded_at DESC
+        """))
+        rows = cursor.fetchall()
+        conn.close()
+        features = []
+        for r in rows:
+            if r[1] is None or r[2] is None:
+                continue
+            features.append({
+                "type": "Feature",
+                "properties": {
+                    "lat":        float(r[1]),
+                    "lon":        float(r[2]),
+                    "severity":   r[4] or "Low",
+                    "cell_count": r[3] or 0,
+                    "sfabi":      None,
+                    "beach_name": r[0],
+                },
+                "geometry": {
+                    "type":        "Point",
+                    "coordinates": [float(r[2]), float(r[1])],
+                },
+            })
+        return {
+            "type":        "FeatureCollection",
+            "features":    features,
+            "data_source": "ground_truth_fallback",
+        }
+    except Exception as e:
+        logging.warning(f"_cell_counts_as_geojson failed: {e}")
+        return {"type": "FeatureCollection", "features": [], "data_source": "error"}
+
+
 @app.get("/api/bloom-heatmap")
 def bloom_heatmap():
+    """Return satellite bloom GeoJSON, falling back to ground truth dots if empty."""
     path = root_path("data", "indices", "bloom_heatmap_latest.geojson")
     meta = _meta("satellite", path)
     if os.path.exists(path):
         try:
             with open(path, encoding="utf-8") as f:
                 data = json.load(f)
-            data["last_updated"] = meta["last_updated"]
-            data["data_source"]  = meta["data_source"]
-            return data
-        except Exception:
-            pass
-    return {
-        "type":         "FeatureCollection",
-        "features":     [],
-        "last_updated": None,
-        "data_source":  "fallback",
-    }
+            features = data.get("features", [])
+            # If satellite GeoJSON has real data, return it
+            if features:
+                data["last_updated"] = meta["last_updated"]
+                data["data_source"]  = meta["data_source"]
+                return data
+        except Exception as e:
+            logging.warning(f"bloom_heatmap: GeoJSON load error: {e}")
+
+    # Satellite empty or missing — fall back to ground truth cell count dots
+    fallback = _cell_counts_as_geojson()
+    fallback["last_updated"] = meta["last_updated"]
+    return fallback
+
 
 
 # ════════════════════════════════════
