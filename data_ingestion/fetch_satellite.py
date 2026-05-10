@@ -56,6 +56,15 @@ num   = B6.add(B7).subtract(B2.add(B3).add(B12))
 den   = B6.add(B7).add(B2.add(B3).add(B12))
 sfabi = num.divide(den).rename('SFABI')
 
+# Mask to ocean/water pixels only using NDWI (Normalized Difference Water Index).
+# NDWI = (B3 - B8) / (B3 + B8). Values > -0.1 reliably identify coastal water pixels.
+# Without this, land pixels (vegetation, soil) can produce SFABI values that
+# falsely appear as bloom detections over suburbs.
+B8 = s2.select('B8').divide(10000)
+ndwi = B3.subtract(B8).divide(B3.add(B8))
+water_mask = ndwi.gt(-0.1)
+sfabi = sfabi.updateMask(water_mask)
+
 sample = sfabi.sample(region=bbox, scale=300, numPixels=5000, seed=42, geometries=True)
 print('Sampling...')
 result   = sample.getInfo()
