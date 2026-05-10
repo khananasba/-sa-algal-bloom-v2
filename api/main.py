@@ -214,6 +214,64 @@ def bloom_heatmap():
     return fallback
 
 
+# ════════════════════════════════════
+# ENDPOINT 2b — Satellite-only data
+# ════════════════════════════════════
+@app.get("/api/satellite")
+def satellite_data():
+    """
+    Return ONLY real Sentinel-2 SFABI data with stats.
+
+    Never falls back to ground truth — used by the dedicated satellite tab
+    so it can accurately show 'unavailable' when GEE data is absent.
+
+    Returns:
+        GeoJSON FeatureCollection with sfabi-valued features + metadata block.
+    """
+    path = root_path("data", "indices", "bloom_heatmap_latest.geojson")
+    meta = _meta("satellite", path)
+    empty_response = {
+        "type": "FeatureCollection",
+        "features": [],
+        "data_source": "unavailable",
+        "last_updated": meta["last_updated"],
+        "stats": None,
+    }
+    if not os.path.exists(path):
+        return empty_response
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        features = [
+            ft for ft in data.get("features", [])
+            if ft.get("properties", {}).get("sfabi") is not None
+        ]
+        if not features:
+            return empty_response
+        sfabi_vals = [ft["properties"]["sfabi"] for ft in features]
+        high = sum(1 for v in sfabi_vals if v > 0.15)
+        med  = sum(1 for v in sfabi_vals if 0.05 < v <= 0.15)
+        low  = sum(1 for v in sfabi_vals if v <= 0.05)
+        return {
+            "type":         "FeatureCollection",
+            "features":     features,
+            "data_source":  "sentinel2",
+            "last_updated": meta["last_updated"],
+            "stats": {
+                "n_pixels":  len(features),
+                "sfabi_min": round(min(sfabi_vals), 4),
+                "sfabi_max": round(max(sfabi_vals), 4),
+                "sfabi_mean": round(sum(sfabi_vals) / len(sfabi_vals), 4),
+                "high_pixels":   high,
+                "medium_pixels": med,
+                "low_pixels":    low,
+            },
+        }
+    except Exception as e:
+        logging.warning(f"satellite_data: {e}")
+        return empty_response
+
+
 
 # ════════════════════════════════════
 # ENDPOINT 3 — Cell counts

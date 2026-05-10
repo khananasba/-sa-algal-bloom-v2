@@ -38,7 +38,8 @@ start_date = (date.today() - timedelta(days=180)).strftime('%Y-%m-%d')
 end_date = date.today().strftime('%Y-%m-%d')
 print(f'Date range: {start_date} to {end_date}')
 
-bbox = ee.Geometry.Rectangle([137.6, -35.6, 138.5, -34.6])
+# Full SA coastline: covers Spencer Gulf, Port Lincoln, Adelaide coast, Goolwa
+bbox = ee.Geometry.Rectangle([135.3, -36.2, 139.0, -33.8])
 s2 = (ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED')
         .filterBounds(bbox)
         .filterDate(start_date, end_date)
@@ -62,7 +63,7 @@ sfabi = num.divide(den).rename('SFABI')
 # falsely appear as bloom detections over suburbs.
 B8 = s2.select('B8').divide(10000)
 ndwi = B3.subtract(B8).divide(B3.add(B8))
-water_mask = ndwi.gt(-0.1)
+water_mask = ndwi.gt(-0.15)  # -0.15 retains coastal/shallow pixels without masking blooms
 sfabi = sfabi.updateMask(water_mask)
 
 sample = sfabi.sample(region=bbox, scale=300, numPixels=5000, seed=42, geometries=True)
@@ -71,7 +72,7 @@ result   = sample.getInfo()
 features = []
 for ft in result['features']:
     v = ft['properties'].get('SFABI')
-    if v is None or v < 0.02:
+    if v is None or v < 0.01:  # 0.01 catches weak bloom signals; 0.02 was too aggressive
         continue
     lon, lat = ft['geometry']['coordinates']
     sev = 'High' if v > 0.15 else 'Medium' if v > 0.05 else 'Low'
