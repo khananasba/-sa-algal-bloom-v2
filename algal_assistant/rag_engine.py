@@ -232,7 +232,7 @@ def get_live_context() -> str:
         Formatted string with current platform data.
         Empty string if the API is unreachable.
     """
-    base = "http://localhost:8000/api"
+    base = os.environ.get("API_BASE_URL", "http://localhost:8000/api")
     parts = []
 
     # --- 1. Ground truth cell counts (highest priority) ---

@@ -13,5 +13,7 @@ services:
         sync: false          # set a strong random value, e.g.: openssl rand -hex 32
       - key: OPENAI_API_KEY
         sync: false          # paste your OpenAI API key in the Render dashboard
+      - key: API_BASE_URL
+        value: https://sa-algal-bloom-v2.onrender.com/api
       - key: PYTHON_VERSION
         value: 3.11.0
