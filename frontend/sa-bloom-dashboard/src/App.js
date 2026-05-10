@@ -32,7 +32,6 @@ const[alerts,setAlerts]=useState({total_alerts:0,alerts:[]});
 const[weather,setWeather]=useState([]);
 const[safety,setSafety]=useState([]);
 const[hour,setHour]=useState('0');
-const[chatOpen,setChatOpen]=useState(false);
 const[messages,setMessages]=useState([INIT_MSG]);
 const[chatInput,setChatInput]=useState('');
 const[chatTyping,setChatTyping]=useState(false);
