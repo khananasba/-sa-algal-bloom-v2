@@ -1,14 +1,31 @@
-Historical SA algal bloom hotspots based on recorded data.
-Highest recorded readings Feb 2026: Hardwicke Bay 744800 cells/L,
-Point Turton 862840 cells/L, Henley Beach 6372000 cells/L.
-Seacliff Beach Oct 2025: 118900 cells/L recorded.
-Glenelg Oct 2025: 602600 cells/L recorded.
-Pondalowie Bay Jan 2026: 719200 cells/L recorded.
-Blooms peak seasonally October to November in Gulf St Vincent.
+Important note on data priority:
+Ground truth water sampling is the most accurate data source.
+SA Government field scientists collect water samples and count Karenia
+cells under microscope giving exact cell counts in cells per litre.
+This platform has 509 ground truth readings from 512 SA beach sites
+collected since September 2025.
+Satellite SFABI readings support but cannot replace ground truth.
+When ground truth data is available always lead with cell count first.
+
+Historical SA algal bloom hotspots from ground truth field data:
+Hardwicke Bay February 2026 peak reading 744800 cells per litre Critical.
+Point Turton February 2026 peak reading 862840 cells per litre Critical.
+Henley Beach October 2025 peak reading 6372000 cells per litre Critical.
+Glenelg Beach October 2025 reading 602600 cells per litre Critical.
+Seacliff Beach October 2025 reading 118900 cells per litre Critical.
+Pondalowie Bay January 2026 reading 719200 cells per litre Critical.
+Port River September 2025 reading 9494900 cells per litre Critical.
+Port Hughes Jetty current reading 65000 cells per litre Critical.
+HAB 48 Bottom current reading 63720 cells per litre Critical.
+Boston Bay BB-13A current reading 60840 cells per litre Critical.
+
+Seasonal bloom patterns in South Australia:
+Blooms peak October to November in Gulf St Vincent near Adelaide.
 Spencer Gulf blooms peak September to November near Port Lincoln.
 Karenia requires warm sea surface temperature above 18 degrees Celsius.
 Calm low wind conditions favour bloom formation and persistence.
-Blooms spread northward from Spencer Gulf via ocean currents.
-South-to-north drift typical in Gulf St Vincent during bloom season.
-Historically safest months for SA coastal excursions: March to August.
-Historically highest risk months: October, November, December, January.
+Blooms can spread from Spencer Gulf southward via ocean currents.
+Historically safest months for coastal excursions: April to August.
+Historically highest risk months: October November December January.
+Metropolitan Adelaide coast is high risk October to December.
+Eyre Peninsula Spencer Gulf is high risk September to November.

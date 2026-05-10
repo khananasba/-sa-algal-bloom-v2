@@ -1,9 +1,13 @@
-SA Southern Bluefin Tuna industry annual value: 180 million AUD.
-Approximately 30 tuna farms operating in Spencer Gulf near Port Lincoln.
-Karenia mortality threshold for Southern Bluefin Tuna: 10000 cells/L.
-Main farm clusters: Port Lincoln, Boston Bay, Proper Bay, Coffin Bay.
+SA Southern Bluefin Tuna industry annual value is 180 million AUD.
+Approximately 30 tuna farms operate in Spencer Gulf near Port Lincoln.
+Karenia mortality threshold for Southern Bluefin Tuna is 10000 cells per litre.
 Fish mortality occurs within 24 to 48 hours of sustained bloom exposure.
+Main farm clusters are Port Lincoln Boston Bay Proper Bay and Coffin Bay.
 72 hour advance warning gives operators time to reduce feeding and prepare.
 PIRSA is the regulatory authority for SA aquaculture operations.
 Economic loss from a major bloom event can reach tens of millions AUD.
-Early detection and 72hr forecasting is critical for industry survival.
+Early detection and 72 hour forecasting is critical for industry survival.
+Current Critical readings at Eyre Peninsula near tuna farms:
+Boston Bay 60840 cells per litre which exceeds fish mortality threshold.
+Port Hughes Jetty 65000 cells per litre which exceeds fish mortality threshold.
+These readings indicate immediate risk to aquaculture operations.
