@@ -68,9 +68,37 @@ class BloomTracker:
             return 1.3   # daytime — surface currents stronger
         return 0.7       # night — deeper, slower
 
-    def degrees_per_ms(self):
-        """Convert m/s to degrees lat/lon per hour"""
+    def degrees_per_ms(self) -> float:
+        """Convert m/s to degrees lat/lon per hour."""
         return 3600 / 111000  # ~0.0324 deg per m/s per hour
+
+    @staticmethod
+    def is_on_land(lat: float, lon: float) -> bool:
+        """
+        Return True if the given coordinate is clearly on land in SA.
+
+        Uses three simple rectangular rules derived from the SA coastline
+        geometry.  These are intentionally conservative — they only flag
+        positions that are unambiguously inland so that valid nearshore
+        ocean cells are never incorrectly blocked.
+
+        Args:
+            lat: Latitude in decimal degrees (negative = south).
+            lon: Longitude in decimal degrees.
+
+        Returns:
+            True if the position is on land; False if it is in the ocean.
+        """
+        # Adelaide metro coast — land is east of the coastline (~138.55°E)
+        if -35.8 < lat < -34.5 and lon > 138.55:
+            return True
+        # Fleurieu Peninsula — land is east of the southern coastline
+        if -35.9 < lat < -35.5 and lon > 138.6:
+            return True
+        # Yorke Peninsula east coast — land strip between 138.0° and 138.4°E
+        if -35.5 < lat < -34.0 and 138.0 < lon < 138.4:
+            return True
+        return False
 
     def simulate(self, hours=72, timestep=1):
         """Run the full particle simulation"""
@@ -99,9 +127,10 @@ class BloomTracker:
                 d_lon = (u_curr * diurnal + u_wind) * deg_per_ms
                 d_lat = (v_curr * diurnal + v_wind) * deg_per_ms
 
-                # Add random turbulent diffusion
-                d_lat += np.random.normal(0, 0.003)
-                d_lon += np.random.normal(0, 0.003)
+                # Add random turbulent diffusion (std halved to 0.0015 so
+                # particles spread realistically along the coast, not inland)
+                d_lat += np.random.normal(0, 0.0015)
+                d_lon += np.random.normal(0, 0.0015)
 
                 new_lat = lat + d_lat
                 new_lon = lon + d_lon
@@ -109,6 +138,11 @@ class BloomTracker:
                 # Keep particles in SA bounding box
                 new_lat = np.clip(new_lat, -37.0, -32.0)
                 new_lon = np.clip(new_lon, 135.0, 141.0)
+
+                # Land-mask guard: if the proposed position is on land,
+                # keep the particle at its previous valid ocean position.
+                if BloomTracker.is_on_land(new_lat, new_lon):
+                    new_lat, new_lon = lat, lon
 
                 new_particles.append([new_lat, new_lon])
 
