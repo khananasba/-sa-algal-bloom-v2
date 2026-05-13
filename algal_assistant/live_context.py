@@ -5,6 +5,7 @@ Kept separate from rag_engine.py to stay within the 300-line rule.
 """
 import logging
 import requests
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +91,10 @@ def format_satellite(data: dict) -> str:
 
 def fetch_live_context(base_url: str) -> str:
     """
-    Fetch live platform data from the API in data-priority order.
+    Fetch live platform data from the API concurrently in data-priority order.
+
+    Runs all 4 API calls in parallel using ThreadPoolExecutor so total latency
+    equals the slowest single call (~3s) instead of up to 20s sequentially.
 
     Priority:
       1. Ground truth cell counts  (HIGHEST — SA Gov field sampling)
@@ -104,62 +108,85 @@ def fetch_live_context(base_url: str) -> str:
     Returns:
         Formatted string. Empty string if the API is unreachable.
     """
-    parts: list[str] = []
+    TIMEOUT = 3  # seconds per call
 
-    # PRIORITY 1 — Ground truth cell counts
-    try:
-        r = requests.get(base_url + "/cell-counts", timeout=5)
-        r.raise_for_status()
-        parts.append(
-            "GROUND TRUTH WATER SAMPLING DATA — HIGHEST PRIORITY\n"
-            "Source: SA Government field water sampling — most accurate\n"
-            + format_cell_counts(r.json())
-        )
-    except Exception as e:
-        logger.warning(f"fetch_live_context: cell-counts failed: {e}")
-
-    # PRIORITY 2 — Beach safety scores
-    try:
-        r = requests.get(base_url + "/beach-safety", timeout=5)
-        r.raise_for_status()
-        scores = r.json().get("scores", [])[:10]
-        lines = [f"BEACH SAFETY SCORES (calculated from ground truth)\n"
-                 f"Top {len(scores)} beaches by safety score:"]
-        for s in scores:
-            lines.append(
-                f"  {s.get('beach')}: {s.get('score')}/100 [{s.get('label')}]"
-                f" — {s.get('cell_count', 0):,} cells/L"
+    def _fetch_cell_counts():
+        try:
+            r = requests.get(base_url + "/cell-counts", timeout=TIMEOUT)
+            r.raise_for_status()
+            return (
+                "GROUND TRUTH WATER SAMPLING DATA — HIGHEST PRIORITY\n"
+                "Source: SA Government field water sampling — most accurate\n"
+                + format_cell_counts(r.json())
             )
-        parts.append("\n".join(lines))
-    except Exception as e:
-        logger.warning(f"fetch_live_context: beach-safety failed: {e}")
+        except Exception as e:
+            logger.warning(f"fetch_live_context: cell-counts failed: {e}")
+            return None
 
-    # PRIORITY 3 — Live weather
-    try:
-        r = requests.get(base_url + "/weather", timeout=5)
-        r.raise_for_status()
-        readings = r.json().get("readings", [])[:5]
-        lines = ["LIVE COASTAL WEATHER (BOM Open-Meteo)"]
-        for w in readings:
-            lines.append(
-                f"  {w.get('location_name')}: wind {w.get('wind_speed')} km/h,"
-                f" SST {w.get('sea_surface_temp')}°C,"
-                f" waves {w.get('wave_height')} m"
+    def _fetch_safety():
+        try:
+            r = requests.get(base_url + "/beach-safety", timeout=TIMEOUT)
+            r.raise_for_status()
+            scores = r.json().get("scores", [])[:10]
+            lines = [
+                f"BEACH SAFETY SCORES (calculated from ground truth)\n"
+                f"Top {len(scores)} beaches by safety score:"
+            ]
+            for s in scores:
+                lines.append(
+                    f"  {s.get('beach')}: {s.get('score')}/100 [{s.get('label')}]"
+                    f" — {s.get('cell_count', 0):,} cells/L"
+                )
+            return "\n".join(lines)
+        except Exception as e:
+            logger.warning(f"fetch_live_context: beach-safety failed: {e}")
+            return None
+
+    def _fetch_weather():
+        try:
+            r = requests.get(base_url + "/weather", timeout=TIMEOUT)
+            r.raise_for_status()
+            readings = r.json().get("readings", [])[:5]
+            lines = ["LIVE COASTAL WEATHER (BOM Open-Meteo)"]
+            for w in readings:
+                lines.append(
+                    f"  {w.get('location_name')}: wind {w.get('wind_speed')} km/h,"
+                    f" SST {w.get('sea_surface_temp')}°C,"
+                    f" waves {w.get('wave_height')} m"
+                )
+            return "\n".join(lines)
+        except Exception as e:
+            logger.warning(f"fetch_live_context: weather failed: {e}")
+            return None
+
+    def _fetch_satellite():
+        try:
+            r = requests.get(base_url + "/bloom-heatmap", timeout=TIMEOUT)
+            r.raise_for_status()
+            return format_satellite(r.json())
+        except Exception as e:
+            logger.warning(f"fetch_live_context: bloom-heatmap failed: {e}")
+            return (
+                "SATELLITE DATA — STATUS\n"
+                "Satellite API unavailable. Consult SA Health directly for latest conditions."
             )
-        parts.append("\n".join(lines))
-    except Exception as e:
-        logger.warning(f"fetch_live_context: weather failed: {e}")
 
-    # PRIORITY 4 — Live satellite data from /api/bloom-heatmap
-    try:
-        r = requests.get(base_url + "/bloom-heatmap", timeout=5)
-        r.raise_for_status()
-        parts.append(format_satellite(r.json()))
-    except Exception as e:
-        logger.warning(f"fetch_live_context: bloom-heatmap failed: {e}")
-        parts.append(
-            "SATELLITE DATA — SENTINEL-2 STATUS\n"
-            "Satellite API unavailable. Consult SA Health directly for latest conditions."
-        )
+    # Run all 4 calls concurrently — total time = slowest single call
+    ordered_results = [None, None, None, None]
+    tasks = {
+        0: _fetch_cell_counts,
+        1: _fetch_safety,
+        2: _fetch_weather,
+        3: _fetch_satellite,
+    }
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        futures = {executor.submit(fn): idx for idx, fn in tasks.items()}
+        for future in as_completed(futures):
+            idx = futures[future]
+            try:
+                ordered_results[idx] = future.result()
+            except Exception as e:
+                logger.warning(f"fetch_live_context: task {idx} raised: {e}")
 
+    parts = [r for r in ordered_results if r is not None]
     return "\n\n".join(parts)

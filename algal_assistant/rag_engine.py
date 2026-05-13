@@ -69,29 +69,46 @@ def load_and_chunk_docs(knowledge_dir: str) -> list[dict]:
 
 def get_or_build_collection():
     """
-    Return the in-memory ChromaDB collection, building it on first call.
+    Return the ChromaDB collection, loading from persistent disk on first call.
 
-    Uses module-level _collection singleton so the expensive embedding step
-    only happens once per API worker process.
+    Loads the pre-built algal_knowledge collection from algal_assistant/chroma_db/
+    so no OpenAI embedding calls are needed at startup. Falls back to building
+    in-memory if the persistent DB is missing or corrupt.
 
     Returns:
-        chromadb Collection ready for querying, or None if build fails.
+        chromadb Collection ready for querying, or None if unavailable.
     """
     global _collection
     if _collection is not None:
         return _collection
 
-    api_key = os.environ.get("OPENAI_API_KEY")
-    if not api_key:
-        logger.error(
-            "get_or_build_collection: OPENAI_API_KEY not set — cannot build collection"
-        )
-        return None
-
     try:
         import chromadb
-        from openai import OpenAI
 
+        chroma_dir = os.path.join(os.path.dirname(__file__), "chroma_db")
+
+        # ── Primary path: load pre-built persistent collection (fast, no API call) ──
+        if os.path.exists(chroma_dir):
+            try:
+                chroma_client = chromadb.PersistentClient(path=chroma_dir)
+                collection = chroma_client.get_collection("algal_knowledge")
+                logger.info(
+                    f"[RAG] Loaded persistent collection: {collection.count()} chunks"
+                )
+                _collection = collection
+                return _collection
+            except Exception as e:
+                logger.warning(
+                    f"[RAG] Persistent collection load failed ({e}), falling back to in-memory build"
+                )
+
+        # ── Fallback: build in-memory (slow — needs OpenAI embeddings API) ──
+        api_key = os.environ.get("OPENAI_API_KEY")
+        if not api_key:
+            logger.error("get_or_build_collection: OPENAI_API_KEY not set")
+            return None
+
+        from openai import OpenAI
         knowledge_dir = os.path.join(os.path.dirname(__file__), "knowledge_base")
         chunks = load_and_chunk_docs(knowledge_dir)
         if not chunks:
@@ -114,7 +131,7 @@ def get_or_build_collection():
         collection.add(documents=texts, embeddings=embeddings, ids=ids, metadatas=metadatas)
 
         file_count = len({c["source"] for c in chunks})
-        logger.info(f"[RAG] Collection ready: {len(chunks)} chunks from {file_count} files")
+        logger.info(f"[RAG] In-memory fallback ready: {len(chunks)} chunks from {file_count} files")
         _collection = collection
 
     except Exception as e:
