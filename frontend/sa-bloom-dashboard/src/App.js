@@ -62,10 +62,12 @@ setChatInput('');
 setMessages(m=>[...m,{role:'user',text:q,ts:new Date()}]);
 setChatTyping(true);
 try{
-const r=await axios.post(API+'/algal-assistant',{question:q},{timeout:30000});
+// Wake the Render server first (free tier sleeps after 15 min)
+try{await axios.get(API+'/health',{timeout:8000});}catch(_){}
+const r=await axios.post(API+'/algal-assistant',{question:q},{timeout:60000});
 setMessages(m=>[...m,{role:'assistant',text:r.data.answer,ts:new Date()}]);
 }catch(e){
-setMessages(m=>[...m,{role:'assistant',text:"Sorry, I'm unable to connect to the Algal Assistant. Please ensure the API is running.",ts:new Date()}]);
+setMessages(m=>[...m,{role:'assistant',text:"Sorry, the Algal Assistant is taking longer than usual to respond. This can happen when the server is waking up after a period of inactivity. Please try again in a moment.",ts:new Date()}]);
 }finally{setChatTyping(false);}
 }
 const particles=forecast?.snapshots?.[hour]?.features||[];

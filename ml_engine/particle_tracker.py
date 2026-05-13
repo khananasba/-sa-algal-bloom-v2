@@ -89,14 +89,14 @@ class BloomTracker:
         Returns:
             True if the position is on land; False if it is in the ocean.
         """
-        # Adelaide metro coast — land is east of the coastline (~138.55°E)
-        if -35.8 < lat < -34.5 and lon > 138.55:
+        # Fleurieu Peninsula — land east of 138.75°E below -35.5
+        if -35.9 < lat < -35.5 and lon > 138.75:
             return True
-        # Fleurieu Peninsula — land is east of the southern coastline
-        if -35.9 < lat < -35.5 and lon > 138.6:
+        # Strict inland east (Mt Lofty Ranges and beyond)
+        if -35.5 < lat < -34.5 and lon > 138.8:
             return True
-        # Yorke Peninsula east coast — land strip between 138.0° and 138.4°E
-        if -35.5 < lat < -34.0 and 138.0 < lon < 138.4:
+        # Yorke Peninsula narrow land strip
+        if -35.0 < lat < -34.0 and 137.9 < lon < 138.1:
             return True
         return False
 
