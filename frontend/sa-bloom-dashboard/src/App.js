@@ -154,7 +154,7 @@ return(<div className="app-shell">
 {layer==='satellite'&&satAvail&&satFeatures.map((ft,i)=>{const{lat,lon,severity,sfabi}=ft.properties;if(!lat||!lon)return null;return<CircleMarker key={i} center={[lat,lon]} radius={7} pathOptions={{fillColor:SFABI_C[severity]||'#0097a7',color:'rgba(255,255,255,0.5)',weight:1,fillOpacity:0.75}}><Popup><b>SFABI: {sfabi}</b><br/>Severity: {severity}<br/>Lat:{lat} Lon:{lon}</Popup></CircleMarker>;})}
 </MapContainer></div>
 <div className="sidebar">
-{layer==='cellcounts'&&(<div className="data-disclaimer-banner">Data sourced from the <a href="https://experience.arcgis.com/experience/5f0d6b22301a47bf91d198cabb030670" target="_blank" rel="noopener noreferrer">SA Government Algal Bloom Water Testing Open Data Dashboard</a><button className="info-btn" onClick={()=>setShowInfo(true)} title="View full data disclaimer">ⓘ</button></div>)}
+{layer==='cellcounts'&&(<div className="data-disclaimer-banner">Data sourced from the <a href="https://experience.arcgis.com/experience/5f0d6b22301a47bf91d198cabb030670" target="_blank" rel="noopener noreferrer">SA Government Algal Bloom Water Testing Open Data Dashboard</a></div>)}
 <h3 style={{margin:'0 0 8px',color:'#1a237e',fontSize:14}}>Active Alerts</h3>
 {alerts.total_alerts===0?<div style={{background:'#e8f5e9',padding:10,borderRadius:8,color:'#2e7d32',fontSize:13}}>All zones clear</div>:alerts.alerts.map((a,i)=>(<div key={i} style={{background:'#fff',borderLeft:'5px solid #d32f2f',borderRadius:8,padding:10,marginBottom:8}}><b style={{fontSize:13}}>{a.zone_name}</b><br/><span style={{background:'#d32f2f',color:'#fff',padding:'1px 8px',borderRadius:10,fontSize:11}}>{a.severity}</span><div style={{fontSize:12,color:'#555',marginTop:4}}>Bloom in {a.predicted_hour}h</div></div>))}
 {layer==='forecast'&&(<div style={{marginTop:16,background:'#fff',padding:12,borderRadius:8}}><h3 style={{margin:'0 0 8px',color:'#1a237e',fontSize:14}}>Forecast hour</h3><select value={hour} onChange={e=>setHour(e.target.value)} style={{width:'100%',padding:6,borderRadius:6,border:'1px solid #ccc'}}>{['0','6','12','24','48','72'].map(h=><option key={h} value={h}>T+{h} hours</option>)}</select><div style={{fontSize:12,color:'#666',marginTop:6}}>Particles: {particles.length}</div></div>)}
@@ -233,4 +233,5 @@ High SFABI indicates bloom signature detected from space. Ground truth cell coun
 </div>
 </div>
 )}
+<button className="info-fab" onClick={()=>setShowInfo(true)} title="Data disclaimer &amp; limitations"><span className="info-fab-i">i</span></button>
 </div>);}

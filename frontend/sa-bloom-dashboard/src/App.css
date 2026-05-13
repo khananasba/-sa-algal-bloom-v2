@@ -104,19 +104,40 @@ body { overflow: hidden; }
   line-height: 1.6; margin: 0;
 }
 
-/* ── ⓘ info button (inline in disclaimer banner) ── */
-.info-btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  margin-left: 8px;
-  background: rgba(255,255,255,0.2);
-  border: 1px solid rgba(255,255,255,0.5);
+/* ── ⓘ Fixed corner info FAB button ── */
+.info-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  width: 18px; height: 18px;
-  font-size: 11px; color: #fff;
-  cursor: pointer; vertical-align: middle;
-  line-height: 1; flex-shrink: 0;
+  background: #fff;
+  border: 3.5px solid #1a237e;
+  color: #1a237e;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 8000;
+  box-shadow: 0 3px 14px rgba(26,35,126,0.25);
+  transition: background 0.18s, color 0.18s, transform 0.15s;
+  padding: 0;
 }
-.info-btn:hover { background: rgba(255,255,255,0.35); }
+.info-fab:hover {
+  background: #1a237e;
+  color: #fff;
+  transform: scale(1.08);
+}
+.info-fab-i {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 26px;
+  font-weight: bold;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: 0;
+  user-select: none;
+}
 
 /* ── Data Attribution ── */
 .data-disclaimer-banner {
