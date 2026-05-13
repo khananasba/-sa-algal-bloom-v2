@@ -5,7 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import './App.css';
 const API='https://sa-algal-bloom-v2.onrender.com/api';
 const SC={Critical:'#d32f2f',High:'#f57c00',Medium:'#fbc02d',Low:'#388e3c',no_bloom:'transparent'};
-const SFABI_C={High:'#7b1fa2',Medium:'#1565c0',Low:'#0097a7'};
+const SFABI_C={High:'#d32f2f',Medium:'#f57c00',Low:'#388e3c'};
 const ZONES=[{name:'Adelaide metro beaches',coords:[[-35.05,138.35],[-35.05,138.65],[-35.45,138.65],[-35.45,138.35]]},{name:'Port Lincoln tuna farm',coords:[[-34.60,135.80],[-34.60,135.98],[-34.80,135.98],[-34.80,135.80]]},{name:'Goolwa desalination',coords:[[-35.45,138.75],[-35.45,138.92],[-35.60,138.92],[-35.60,138.75]]}];
 const CAMERAS=[
 {name:'Glenelg South Beach',url:'https://www.marinesafety.sa.gov.au/web-cameras/glenelg-south-algal-bloom-web-camera'},
@@ -149,8 +149,8 @@ return(<div className="app-shell">
 {layer==='forecast'&&(<div style={{marginTop:16,background:'#fff',padding:12,borderRadius:8}}><h3 style={{margin:'0 0 8px',color:'#1a237e',fontSize:14}}>Forecast hour</h3><select value={hour} onChange={e=>setHour(e.target.value)} style={{width:'100%',padding:6,borderRadius:6,border:'1px solid #ccc'}}>{['0','6','12','24','48','72'].map(h=><option key={h} value={h}>T+{h} hours</option>)}</select><div style={{fontSize:12,color:'#666',marginTop:6}}>Particles: {particles.length}</div></div>)}
 {layer==='satellite'&&(
 <div style={{marginTop:12}}>
-<h3 style={{margin:'0 0 6px',color:'#1a237e',fontSize:14}}>🛰️ Sentinel-2 SFABI</h3>
-<div style={{fontSize:10,color:'#888',marginBottom:10}}>Spectral Fluorescence Algal Bloom Index</div>
+<h3 style={{margin:'0 0 6px',color:'#1a237e',fontSize:14}}>🛰️ Satellite Analysis</h3>
+<div style={{fontSize:10,color:'#888',marginBottom:10}}>Bloom index derived from satellite imagery</div>
 {satAvail?(
 <>
 <div style={{background:'#e8eaf6',borderRadius:8,padding:10,marginBottom:8,fontSize:12}}>
@@ -160,7 +160,7 @@ return(<div className="app-shell">
 <div><b>SFABI mean:</b> {satStats?.sfabi_mean}</div>
 </div>
 <div style={{fontSize:11,marginBottom:6,fontWeight:'bold',color:'#444'}}>Pixel Severity Breakdown</div>
-{[['High (>0.15)','#7b1fa2',satStats?.high_pixels],['Medium (0.05–0.15)','#1565c0',satStats?.medium_pixels],['Low (0.02–0.05)','#0097a7',satStats?.low_pixels]].map(([label,col,count])=>(
+{[['High (>0.15)','#d32f2f',satStats?.high_pixels],['Medium (0.05–0.15)','#f57c00',satStats?.medium_pixels],['Low (0.02–0.05)','#388e3c',satStats?.low_pixels]].map(([label,col,count])=>(
 <div key={label} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'4px 0',borderBottom:'1px solid #eee',fontSize:11}}>
 <span style={{display:'flex',alignItems:'center',gap:6}}><span style={{width:10,height:10,borderRadius:'50%',background:col,display:'inline-block'}}/>{label}</span>
 <span style={{background:col,color:'#fff',padding:'1px 8px',borderRadius:10,fontWeight:'bold'}}>{count}</span>
@@ -173,7 +173,7 @@ High SFABI indicates bloom signature detected from space. Ground truth cell coun
 ):(
 <div style={{background:'#fff3e0',borderRadius:8,padding:12,fontSize:12,color:'#e65100'}}>
 <div style={{fontWeight:'bold',marginBottom:4}}>🛰️ Satellite Unavailable</div>
-<div>No current Sentinel-2 data. Possible reasons:</div>
+<div>No current satellite data available. Possible reasons:</div>
 <ul style={{margin:'6px 0 0 16px',padding:0,fontSize:11}}>
 <li>Cloud cover blocked the latest pass</li>
 <li>GEE daily refresh not yet complete</li>
@@ -186,7 +186,7 @@ High SFABI indicates bloom signature detected from space. Ground truth cell coun
 )}
 {layer!=='satellite'&&(<>
 <h3 style={{margin:'16px 0 4px',color:'#1a237e',fontSize:14}}>Beach Safety Score</h3>
-<div style={{fontSize:10,color:'#888',marginBottom:8}}>SA Gov counts + BOM wind + Sentinel-2</div>
+<div style={{fontSize:10,color:'#888',marginBottom:8}}>SA Gov counts + BOM wind + satellite</div>
 {safety.length>0?safety.slice(0,10).map((s,i)=>(<div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'5px 0',borderBottom:'1px solid #eee',fontSize:12}}><span style={{flex:1}}>{s.beach}</span><span style={{background:s.color,color:'#fff',padding:'2px 8px',borderRadius:10,fontWeight:'bold',fontSize:11}}>{s.score}</span></div>)):<div style={{fontSize:12,color:'#999'}}>Loading scores...</div>}
 <h3 style={{margin:'16px 0 8px',color:'#1a237e',fontSize:14}}>Coastal Weather</h3>
 {weather.slice(0,3).map((w,i)=>(<div key={i} style={{background:'#fff',borderRadius:8,padding:10,marginBottom:6,border:'1px solid #e0e0e0'}}><b style={{fontSize:13}}>{w.location_name}</b><div style={{fontSize:12,color:'#555'}}>Wind:{w.wind_speed?.toFixed(1)}km/h SST:{w.sea_surface_temp?.toFixed(1)}C</div></div>))}
@@ -196,5 +196,5 @@ High SFABI indicates bloom signature detected from space. Ground truth cell coun
 </div>
 </div>
 )}
-<div className="dashboard-footer">Data: Government of South Australia&nbsp;&nbsp;|&nbsp;&nbsp;Cameras: Marine Safety SA&nbsp;&nbsp;|&nbsp;&nbsp;Built by Promatas</div>
+
 </div>);}
