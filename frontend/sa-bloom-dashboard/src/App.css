@@ -30,6 +30,48 @@ body { overflow: hidden; }
 .nav-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
 .nav-alert { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 
+/* ── Data Attribution ── */
+.data-disclaimer-banner {
+  background: #1a237e;
+  color: #fff;
+  font-size: 11px;
+  padding: 7px 12px;
+  border-radius: 6px;
+  border: 1px solid #3949ab;
+  margin-bottom: 12px;
+  line-height: 1.5;
+  flex-shrink: 0;
+}
+.data-disclaimer-banner a {
+  color: #90caf9;
+  text-decoration: underline;
+}
+.data-disclaimer-banner a:hover { color: #fff; }
+
+.camera-attribution {
+  font-size: 11px;
+  color: #777;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.camera-attribution a { color: #1a237e; text-decoration: underline; }
+.camera-attribution a:hover { color: #283593; }
+
+.dashboard-footer {
+  background: #0d1554;
+  color: rgba(255,255,255,0.82);
+  font-size: 11px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
 /* ── Map layout ── */
 .content-area { flex: 1; display: flex; overflow: hidden; }
 .map-area { flex: 1; }
