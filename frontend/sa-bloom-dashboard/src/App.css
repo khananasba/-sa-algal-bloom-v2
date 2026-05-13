@@ -30,6 +30,94 @@ body { overflow: hidden; }
 .nav-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
 .nav-alert { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 
+/* ── Modals & Popups ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 9000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+}
+
+.privacy-popup {
+  background: #fff;
+  border-radius: 14px;
+  padding: 28px 28px 22px;
+  max-width: 520px;
+  width: 100%;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.28);
+  position: relative;
+  text-align: center;
+}
+
+.info-modal {
+  background: #fff;
+  border-radius: 14px;
+  padding: 28px 28px 22px;
+  max-width: 620px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.28);
+  position: relative;
+}
+
+.modal-close {
+  position: absolute; top: 12px; right: 14px;
+  background: #f0f0f0; border: none; border-radius: 50%;
+  width: 28px; height: 28px; font-size: 14px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: #555; line-height: 1;
+}
+.modal-close:hover { background: #e0e0e0; color: #111; }
+
+.modal-icon { font-size: 32px; margin-bottom: 10px; }
+
+.modal-heading {
+  font-size: 16px; font-weight: bold;
+  color: #1a237e; margin: 0 0 12px;
+}
+
+.modal-body {
+  font-size: 13px; color: #444;
+  line-height: 1.65; margin: 0 0 18px;
+  text-align: left;
+}
+
+.modal-btn {
+  background: #1a237e; color: #fff;
+  border: none; border-radius: 20px;
+  padding: 9px 24px; font-size: 13px;
+  cursor: pointer; font-weight: 600;
+  display: block; margin: 0 auto;
+}
+.modal-btn:hover { background: #283593; }
+
+.info-section { margin-bottom: 16px; }
+.info-section-title {
+  font-size: 12px; font-weight: bold;
+  color: #1a237e; margin-bottom: 5px;
+  text-transform: uppercase; letter-spacing: 0.03em;
+}
+.info-section-body {
+  font-size: 12px; color: #555;
+  line-height: 1.6; margin: 0;
+}
+
+/* ── ⓘ info button (inline in disclaimer banner) ── */
+.info-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-left: 8px;
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 50%;
+  width: 18px; height: 18px;
+  font-size: 11px; color: #fff;
+  cursor: pointer; vertical-align: middle;
+  line-height: 1; flex-shrink: 0;
+}
+.info-btn:hover { background: rgba(255,255,255,0.35); }
+
 /* ── Data Attribution ── */
 .data-disclaimer-banner {
   background: #1a237e;
