@@ -2,5 +2,11 @@
   "buildCommand": "cd frontend/sa-bloom-dashboard && npm install && CI=false npm run build",
   "outputDirectory": "frontend/sa-bloom-dashboard/build",
   "installCommand": "echo 'skip root install'",
-  "framework": null
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "http://sa-algal-bloom-api-env.eba-fj5xapey.ap-southeast-2.elasticbeanstalk.com/api/:path*"
+    }
+  ]
 }
