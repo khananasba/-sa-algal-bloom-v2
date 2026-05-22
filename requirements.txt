@@ -1,16 +1,9 @@
 requests
 openai>=1.0.0
 chromadb>=0.4.0
-earthengine-api==0.1.370
-google-auth==2.23.0
-google-api-python-client==2.100.0
-uritemplate==4.1.1
-httplib2==0.22.0
-pyodbc
 psycopg2-binary
-sqlalchemy
 fastapi
-uvicorn
+uvicorn[standard]
 pandas
 numpy
 python-dotenv
@@ -18,8 +11,4 @@ scikit-learn
 lightgbm
 joblib
 scipy
-xarray
-pydap
-netCDF4
-geopandas
-shapely
+pydantic
