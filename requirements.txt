@@ -1,7 +1,7 @@
 requests
 openai>=1.0.0
 chromadb>=0.4.0
-psycopg2-binary
+psycopg2
 fastapi
 uvicorn[standard]
 pandas
@@ -12,3 +12,5 @@ lightgbm
 joblib
 scipy
 pydantic
+httpx
+earthengine-api
