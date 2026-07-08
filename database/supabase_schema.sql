@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS KareniaReadings (
     beach_name           VARCHAR(200),
     latitude             FLOAT,
     longitude            FLOAT,
-    cell_count_per_litre INTEGER,
+    cell_count_per_litre BIGINT,
     severity             VARCHAR(20),
     source               VARCHAR(100),
     created_at           TIMESTAMP DEFAULT NOW()

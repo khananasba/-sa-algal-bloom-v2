@@ -1,11 +1,24 @@
 Important note on data priority:
 Ground truth water sampling is the most accurate data source.
-SA Government field scientists collect water samples and count Karenia
+SA Government field scientists collect water samples and count algal
 cells under microscope giving exact cell counts in cells per litre.
-This platform has 509 ground truth readings from 512 SA beach sites
-collected since September 2025.
+This platform has 592 ground truth readings from 624 SA monitoring sites
+collected since June 2025 through July 2026.
+The platform now tracks ALL harmful algal species not just Karenia.
 Satellite SFABI readings support but cannot replace ground truth.
 When ground truth data is available always lead with cell count first.
+
+Current highest algal bloom readings from comprehensive ground truth data:
+Snipe Point Coorong June 2025 reading 16 billion cells per litre Critical.
+1.8km West Salt Creek Coorong June 2025 reading 14.6 billion cells per litre Critical.
+Salt Creek Outlet Coorong June 2025 reading 10.3 billion cells per litre Critical.
+Sth Policeman Point Coorong June 2025 reading 9.75 billion cells per litre Critical.
+Stoney Well Coorong June 2025 reading 9.28 billion cells per litre Critical.
+Parnka Point Boat Ramp Coorong June 2025 reading 6.14 billion cells per litre Critical.
+Nth Jack Point Coorong July 2025 reading 5.94 billion cells per litre Critical.
+Villa de Yumpa Coorong June 2025 reading 4 billion cells per litre Critical.
+Mundoo Barrage Upstream Coorong June 2025 reading 1.37 billion cells per litre Critical.
+McGrath Flat Rabbit Island Coorong July 2025 reading 1.1 billion cells per litre Critical.
 
 Historical SA algal bloom hotspots from ground truth field data:
 Hardwicke Bay February 2026 peak reading 744800 cells per litre Critical.
@@ -16,12 +29,11 @@ Seacliff Beach October 2025 reading 118900 cells per litre Critical.
 Pondalowie Bay January 2026 reading 719200 cells per litre Critical.
 Port River September 2025 reading 9494900 cells per litre Critical.
 Port Hughes Jetty current reading 65000 cells per litre Critical.
-HAB 48 Bottom current reading 63720 cells per litre Critical.
-Boston Bay BB-13A current reading 60840 cells per litre Critical.
 
 Seasonal bloom patterns in South Australia:
 Blooms peak October to November in Gulf St Vincent near Adelaide.
 Spencer Gulf blooms peak September to November near Port Lincoln.
+Coorong region shows massive Blue Green Algae blooms year round.
 Karenia requires warm sea surface temperature above 18 degrees Celsius.
 Calm low wind conditions favour bloom formation and persistence.
 Blooms can spread from Spencer Gulf southward via ocean currents.
@@ -29,3 +41,4 @@ Historically safest months for coastal excursions: April to August.
 Historically highest risk months: October November December January.
 Metropolitan Adelaide coast is high risk October to December.
 Eyre Peninsula Spencer Gulf is high risk September to November.
+Coorong and Lower Lakes are high risk year round for Blue Green Algae.

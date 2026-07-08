@@ -6,9 +6,17 @@ The SA Algal Bloom Monitor uses Sentinel-2 satellite imagery processed via
 Google Earth Engine to detect algal blooms across the entire SA coastline.
 Sentinel-2 satellite passes over South Australia every 5 days.
 The platform automatically searches the last 6 months for the most recent
-cloud-free satellite image to ensure current data is always used.
-Most recent satellite image processed was from May 8 2026.
-48 real Sentinel-2 satellite pixels were sampled across SA coastal waters.
+cloud-free satellite images and creates a 30-day median composite
+to ensure maximum spatial coverage even during cloudy winter periods.
+
+Current satellite status as of July 2026:
+937 Sentinel-2 images were available in the last 180 days for SA coast.
+The platform uses a 30-day median composite for reliable winter coverage.
+During winter months June to August satellite coverage may be limited due
+to cloud cover over the Southern Ocean and SA coastline.
+When satellite data is limited the dashboard automatically falls back to
+showing ground truth cell count readings as coloured dots on the map.
+This fallback is more accurate than satellite for safety decisions.
 
 SFABI Spectral Fluorescence Algal Bloom Index explained:
 SFABI uses Sentinel-2 bands B2 blue 490nm B3 green 560nm B6 red-edge 740nm
@@ -21,10 +29,6 @@ SFABI above 0.15 is High severity bloom.
 SFABI above 0.05 is Medium severity bloom.
 SFABI above 0.02 is Low severity bloom.
 SFABI below 0.02 is no bloom detected.
-Current SFABI readings from May 8 2026:
-minimum 0.0202 maximum 0.4358 mean 0.1440.
-Maximum SFABI of 0.4358 indicates areas of High severity bloom from space.
-Mean SFABI of 0.1440 indicates moderate bloom activity across SA coast.
 
 NDCI Normalized Difference Chlorophyll Index:
 NDCI uses bands B4 red and B5 red-edge.
@@ -36,6 +40,7 @@ Detects bloom conditions up to 3 to 5 days before ground sampling confirms.
 Shows spatial spread of bloom across ocean not just individual beach points.
 
 Satellite limitations:
-Cloud cover blocks readings requiring use of most recent cloud-free image.
-Cannot measure exact Karenia cell counts only bloom signature.
+Cloud cover blocks readings requiring use of median composite approach.
+Cannot measure exact cell counts only bloom signature intensity.
+Winter months have reduced coverage compared to summer.
 Ground truth field sampling confirms species and exact concentrations.

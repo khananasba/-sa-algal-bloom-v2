@@ -29,6 +29,7 @@ def rp(*parts):
 
 
 CSV_PATH      = rp("data_ingestion", "sa_bloom_data.csv")
+NEW_CSV_PATH  = rp("data", "HarmfulAlgalBloom_MonitoringSites_6667060387850926547.csv")
 LOG_PATH      = rp("data", "refresh_log.json")
 HEATMAP_PATH  = rp("data", "indices",   "bloom_heatmap_latest.geojson")
 FORECAST_PATH = rp("data", "forecasts", "forecast_latest.json")
@@ -58,11 +59,17 @@ def _save_log(log):
 
 # ── CSV hash (change detection) ────────────────────────────────────────────────
 def _csv_hash():
-    try:
-        with open(CSV_PATH, "rb") as f:
-            return hashlib.md5(f.read()).hexdigest()
-    except Exception:
-        return None
+    """Hash both old and new CSV files to detect changes in either."""
+    h = hashlib.md5()
+    for path in [CSV_PATH, NEW_CSV_PATH]:
+        try:
+            with open(path, "rb") as f:
+                h.update(f.read())
+        except FileNotFoundError:
+            h.update(b"MISSING:" + path.encode())
+        except Exception:
+            pass
+    return h.hexdigest()
 
 
 def _stored_csv_hash(log):

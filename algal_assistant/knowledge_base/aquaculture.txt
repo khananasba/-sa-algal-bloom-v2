@@ -7,7 +7,20 @@ Main farm clusters are Port Lincoln Boston Bay Proper Bay and Coffin Bay.
 PIRSA is the regulatory authority for SA aquaculture operations.
 Economic loss from a major bloom event can reach tens of millions AUD.
 Early detection and 72 hour forecasting is critical for industry survival.
-Current Critical readings at Eyre Peninsula near tuna farms:
-Boston Bay 60840 cells per litre which exceeds fish mortality threshold.
-Port Hughes Jetty 65000 cells per litre which exceeds fish mortality threshold.
-These readings indicate immediate risk to aquaculture operations.
+
+Current status of aquaculture zones from ground truth data July 2026:
+The platform monitors 592 sites including all major aquaculture regions.
+Boston Bay BB-13A current Karenia readings require ongoing monitoring.
+Port Hughes Jetty readings require ongoing monitoring.
+Coffin Bay COB-1 and Kellidie Bay KEL-7A are monitored regularly.
+Spencer Gulf Sites 1 through 6 near Whyalla are monitored.
+Franklin Harbour SWB sites 1 through 9 are monitored for aquaculture.
+
+Coorong aquaculture alert:
+Massive Blue Green Algae blooms detected in Coorong region.
+Snipe Point 16 billion cells per litre June 2025 Critical.
+Salt Creek area readings exceeding 10 billion cells per litre.
+Parnka Point 6.14 billion cells per litre June 2025 Critical.
+These readings far exceed safe thresholds for all aquatic species.
+Coorong region SASQAP sites COR-2A COR-4A COR-8A COR-10A are affected.
+Shellfish harvesting in Coorong should follow SASQAP advisories closely.

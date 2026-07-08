@@ -1,0 +1,67 @@
+Comprehensive Harmful Algal Bloom Monitoring Data Summary — July 2026
+
+The SA Algal Bloom Monitor now ingests data from two comprehensive CSV datasets
+containing over 161000 total rows of monitoring data covering all SA coastal
+and inland water monitoring sites.
+
+Data coverage:
+592 monitoring readings from 624 unique SA sites.
+Data spans from June 2025 through July 2026.
+780 registered monitoring sites with GPS coordinates across all SA regions.
+Regions covered: Metropolitan Adelaide Coorong Southern Fleurieu
+Eyre Peninsula Yorke Peninsula Kangaroo Island South East and offshore.
+
+Species tracked:
+The platform now monitors ALL harmful algal species not just Karenia.
+Key species groups tracked include:
+Blue Green Algae Total (Cyanobacteria) — most dangerous freshwater group.
+Green Algae Total — includes marine and freshwater species.
+Diatoms Total — generally less harmful but tracked for ecosystem health.
+Toxin producing BGA Total — subset of BGA that produces dangerous toxins.
+Geosmin-MIB producing BGA Total — causes taste and odour in water.
+Individual dangerous species: Cylindrospermopsis raciborskii
+Nodularia spumigena Microcystis Dolichospermum Aphanizomenon
+Raphidiopsis and Karenia species.
+
+Key findings from the latest data:
+
+Coorong Region — CRITICAL ALERT:
+The Coorong shows the highest algal concentrations ever recorded.
+Snipe Point: 16 billion cells per litre — Algae Total June 2025.
+1.8km West Salt Creek: 14.6 billion cells per litre June 2025.
+Salt Creek Outlet: 10.3 billion cells per litre June 2025.
+Sth Policeman Point: 9.75 billion cells per litre June 2025.
+Stoney Well: 9.28 billion cells per litre June 2025.
+Parnka Point Boat Ramp: 6.14 billion cells per litre Green Algae June 2025.
+Nth Jack Point: 5.94 billion cells per litre July 2025.
+Villa de Yumpa: 4 billion cells per litre June 2025.
+The dominant algal type in Coorong is Green Algae particularly
+unicellular green algae small species at densities exceeding 5 billion cells per litre.
+Blue Green Algae are dominant at upstream sites like Mundoo Barrage.
+
+Mundoo Barrage Area:
+Mundoo Barrage Upstream: 1.37 billion cells per litre BGA June 2025.
+Blue Green Algae dominated by Planktolyngbya Cyanogranis Cyanodictyon
+Merismopedia and Aphanocapsa species.
+Toxin producing BGA at Mundoo: 24.7 million cells per litre June 2025.
+Key toxin producers: Cylindrospermopsis raciborskii at 24.6 million cells per litre.
+Aphanizomenon at 60.4 million cells per litre June 2025.
+Mundoo Barrage Downstream: 706 million cells per litre BGA June 2025.
+
+Monitoring frequency:
+Sites sampled weekly to fortnightly depending on region and risk level.
+Coorong sites sampled approximately every 1 to 2 weeks.
+Metropolitan Adelaide sites sampled weekly during bloom season.
+SASQAP shellfish monitoring sites sampled on regular schedule.
+
+Severity classification used in this platform:
+Critical: 50000 or more cells per litre — beach closure recommended.
+High: 10000 to 49999 cells per litre — exercise extreme caution.
+Medium: 1000 to 9999 cells per litre — exercise caution advised.
+Low: below 1000 cells per litre — swimming generally acceptable.
+
+Current severity breakdown across 592 readings:
+Critical: 267 sites — 45 percent of all monitored sites.
+High: 105 sites — 18 percent.
+Medium: 124 sites — 21 percent.
+Low: 96 sites — 16 percent.

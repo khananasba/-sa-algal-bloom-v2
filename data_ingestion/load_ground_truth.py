@@ -7,11 +7,38 @@ from db_config import get_connection, adapt_sql, ph
 from datetime import datetime
 from collections import defaultdict
 
+# ── File paths ────────────────────────────────────────────────────────────────
 # Site registry with GPS coords (SiteName, Latitude, Longitude)
 SITES_CSV = 'data_ingestion/sa_bloom_data.csv'
-# Bloom readings (Site_Description, Date_Sample_Collected, Result_Name, Result_Label)
-READINGS_CSV = 'data_ingestion/old_sa_bloom_data.csv'
-CUTOFF = datetime(2025, 9, 1)
+# Old bloom readings (Site_Description, Date_Sample_Collected, Result_Name, Result_Label)
+OLD_READINGS_CSV = 'data_ingestion/old_sa_bloom_data.csv'
+# New comprehensive CSV downloaded from SA Gov HAB monitoring
+NEW_READINGS_CSV = 'data/HarmfulAlgalBloom_MonitoringSites_6667060387850926547.csv'
+
+# Only ingest readings from this date onwards
+CUTOFF = datetime(2025, 6, 1)
+
+# Result_Name values we care about (in priority order for safety)
+# We ingest ALL of these and keep the highest-risk reading per site
+PRIORITY_RESULTS = [
+    'Algae - Total',
+    'Blue Green Algae - Total',
+    'Green Algae - Total',
+    'Toxin producing BGA - Total',
+    'Geosmin-MIB producing BGA - Total',
+    'Diatoms - Total',
+]
+
+# Individual dangerous species we also track
+DANGEROUS_SPECIES = [
+    'karenia',
+    'cylindrospermopsis',
+    'nodularia',
+    'microcystis',
+    'dolichospermum',
+    'aphanizomenon',
+    'raphidiopsis',
+]
 
 
 def build_coords_from_sites(sites_csv: str) -> dict:
@@ -70,10 +97,12 @@ def parse_cell_count(label: str) -> int:
         "1,100 Cells/L"    -> 1100
         "6,000 Cells/L"    -> 6000
         "1,610,000 Cells/L" -> 1610000
+        "804,000,000 Cells/L" -> 804000000
         "50 Cells/L"        -> 50
         "Not detected"      -> 0
         "Potentially Detected" -> 0
         "Detected"          -> 0
+        "Abundant"          -> 0
 
     Args:
         label: Raw text from the Result_Label column.
@@ -109,35 +138,62 @@ def parse_date(date_str: str) -> datetime | None:
     return None
 
 
-def run() -> None:
-    """
-    Load SA Gov Karenia bloom readings into the KareniaReadings DB table.
+def is_relevant_result(result_name: str) -> bool:
+    """Check if a Result_Name is one we want to ingest."""
+    if not result_name:
+        return False
+    # Check totals
+    if result_name in PRIORITY_RESULTS:
+        return True
+    # Check dangerous individual species
+    rn_lower = result_name.lower()
+    for species in DANGEROUS_SPECIES:
+        if species in rn_lower:
+            return True
+    return False
 
-    - GPS coordinates sourced from sa_bloom_data.csv (site registry).
-    - Bloom readings sourced from old_sa_bloom_data.csv (readings export).
-    - Filters to rows where Result_Name contains 'Karenia' (case insensitive).
-    - Filters to readings from 2025-09-01 onwards.
-    - Keeps only the latest reading per site before inserting.
-    """
-    coords = build_coords_from_sites(SITES_CSV)
 
-    print(f'Reading bloom readings from {READINGS_CSV}')
-    print(f'Filtering to Karenia readings from {CUTOFF.date()} onwards...')
+def get_severity(cell_count: int) -> str:
+    """Assign severity based on cell count thresholds."""
+    if cell_count >= 50000:
+        return 'Critical'
+    elif cell_count >= 10000:
+        return 'High'
+    elif cell_count >= 1000:
+        return 'Medium'
+    else:
+        return 'Low'
+
+
+def process_csv(csv_path: str, coords: dict, label: str) -> dict:
+    """
+    Process a single CSV file and return a dict of site -> best reading.
+
+    Args:
+        csv_path:  Path to the CSV file.
+        coords:    Site name -> (lat, lon) mapping.
+        label:     Human label for logging (e.g., 'old CSV', 'new CSV').
+
+    Returns:
+        Dict of site_name -> {dt, val, result_name, source} for the
+        highest-risk latest reading per site.
+    """
+    print(f'\nProcessing {label}: {csv_path}')
 
     try:
-        with open(READINGS_CSV, encoding='utf-8-sig') as f:
+        with open(csv_path, encoding='utf-8-sig') as f:
             rows = list(csv.DictReader(f))
     except FileNotFoundError:
-        print(f'ERROR: Readings file not found: {READINGS_CSV}')
-        return
+        print(f'  WARNING: {csv_path} not found — skipping')
+        return {}
 
-    print(f'Total rows in CSV: {len(rows)}')
+    print(f'  Total rows in CSV: {len(rows)}')
 
-    # Filter: Karenia species + date >= CUTOFF + has a cell count
-    karenia = []
+    # Collect relevant readings
+    relevant = []
     for r in rows:
         result_name = r.get('Result_Name', '')
-        if 'karenia' not in result_name.lower():
+        if not is_relevant_result(result_name):
             continue
         dt = parse_date(r.get('Date_Sample_Collected', ''))
         if dt is None or dt < CUTOFF:
@@ -147,47 +203,89 @@ def run() -> None:
             continue
         r['_dt'] = dt
         r['_cell_count'] = cell_count
-        karenia.append(r)
+        r['_result_name'] = result_name
+        relevant.append(r)
 
-    print(f'Karenia readings from {CUTOFF.date()} onwards with cell count > 0: {len(karenia)}')
+    print(f'  Relevant readings from {CUTOFF.date()} onwards: {len(relevant)}')
 
-    # Keep only the latest reading per site
-    latest: dict = defaultdict(lambda: {'dt': datetime(2000, 1, 1), 'val': 0})
-    for r in karenia:
-        site = r['Site_Description'].strip()
-        if r['_dt'] > latest[site]['dt']:
-            latest[site] = {'dt': r['_dt'], 'val': r['_cell_count']}
+    # Keep the highest cell count per site (across all dates and result types)
+    # This gives stakeholders the most cautious safety view
+    best: dict = {}
+    for r in relevant:
+        site = r.get('Site_Description', '').strip()
+        if not site:
+            continue
+        val = r['_cell_count']
+        dt = r['_dt']
+        result_name = r['_result_name']
 
-    print(f'Unique sites with recent Karenia data: {len(latest)}')
+        existing = best.get(site)
+        if existing is None:
+            best[site] = {
+                'dt': dt, 'val': val,
+                'result_name': result_name, 'source': label,
+            }
+        else:
+            # Prefer higher cell count, or more recent date if tied
+            if val > existing['val'] or (val == existing['val'] and dt > existing['dt']):
+                best[site] = {
+                    'dt': dt, 'val': val,
+                    'result_name': result_name, 'source': label,
+                }
 
+    print(f'  Unique sites with data: {len(best)}')
+    return best
+
+
+def run() -> None:
+    """
+    Load SA Gov algal bloom readings from both old and new CSVs into KareniaReadings.
+
+    Processes ALL relevant algal species (not just Karenia) for comprehensive
+    dashboard coverage. Keeps the highest-risk reading per site.
+    """
+    coords = build_coords_from_sites(SITES_CSV)
+
+    print(f'Filtering to readings from {CUTOFF.date()} onwards...')
+    print(f'Tracking {len(PRIORITY_RESULTS)} total categories + '
+          f'{len(DANGEROUS_SPECIES)} dangerous species')
+
+    # Process both CSVs
+    old_data = process_csv(OLD_READINGS_CSV, coords, 'SA_Gov_Old_CSV')
+    new_data = process_csv(NEW_READINGS_CSV, coords, 'SA_Gov_New_CSV')
+
+    # Merge: new data takes priority, but keep old data for sites not in new
+    merged = {}
+    merged.update(old_data)
+    for site, data in new_data.items():
+        existing = merged.get(site)
+        if existing is None or data['val'] > existing['val']:
+            merged[site] = data
+
+    print(f'\nMerged unique sites: {len(merged)}')
+
+    # Insert into database
     conn = get_connection()
     cur = conn.cursor()
     cur.execute('DELETE FROM KareniaReadings')
 
     inserted = 0
     skipped = 0
-    for site, data in latest.items():
+    for site, data in merged.items():
         coord = find_coords(site, coords)
         if coord is None:
-            print(f'  SKIP (no coords): {site}')
             skipped += 1
             continue
         lat, lon = coord
         val = data['val']
         dt = data['dt']
-        if val >= 50000:
-            sev = 'Critical'
-        elif val >= 10000:
-            sev = 'High'
-        elif val >= 1000:
-            sev = 'Medium'
-        else:
-            sev = 'Low'
+        sev = get_severity(val)
+        source = f"{data['source']}|{data['result_name']}"
         cur.execute(
             f'INSERT INTO KareniaReadings'
             f'(recorded_at,beach_name,latitude,longitude,cell_count_per_litre,severity,source)'
             f' VALUES({ph(7)})',
-            (dt, site, lat, lon, val, sev, 'SA_Gov_CSV'),
+            (dt, site, lat, lon, val, sev, source),
         )
         inserted += 1
 
@@ -214,7 +312,7 @@ def run() -> None:
     for r in cur2.fetchall():
         print(f'  {r[0]}: {r[1]:,} cells/L — {r[2]} — {str(r[3])[:10]}')
     conn2.close()
-    print('\nGround Truth layer updated. Other layers not affected.')
+    print('\nGround Truth layer updated with comprehensive algal bloom data.')
 
 
 if __name__ == '__main__':

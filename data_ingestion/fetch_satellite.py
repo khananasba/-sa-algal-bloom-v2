@@ -40,13 +40,32 @@ print(f'Date range: {start_date} to {end_date}')
 
 # Full SA coastline: covers Spencer Gulf, Port Lincoln, Adelaide coast, Goolwa
 bbox = ee.Geometry.Rectangle([135.3, -36.2, 139.0, -33.8])
-s2 = (ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED')
+collection = (ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED')
         .filterBounds(bbox)
         .filterDate(start_date, end_date)
         .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 70))
-        .sort('system:time_start', False)
-        .first())
-print('Image date:', ee.Date(s2.get('system:time_start')).format('YYYY-MM-dd').getInfo())
+        .sort('system:time_start', False))
+
+# Try latest single image first; if no good pixels, use 30-day median composite
+img_count = collection.size().getInfo()
+print(f'Found {img_count} images in collection')
+
+if img_count == 0:
+    print('No images found with <70% cloud cover — raising threshold to 90%')
+    collection = (ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED')
+            .filterBounds(bbox)
+            .filterDate(start_date, end_date)
+            .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 90))
+            .sort('system:time_start', False))
+    img_count = collection.size().getInfo()
+    print(f'Found {img_count} images with <90% cloud cover')
+
+# Use median composite of last 30 days for better spatial coverage
+composite_start = (date.today() - timedelta(days=30)).strftime('%Y-%m-%d')
+s2 = (collection
+        .filterDate(composite_start, end_date)
+        .median())
+print(f'Using 30-day median composite: {composite_start} to {end_date}')
 
 B2  = s2.select('B2').divide(10000)
 B3  = s2.select('B3').divide(10000)
