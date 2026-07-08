@@ -90,7 +90,7 @@ return(<div className="app-shell">
 <div className="navbar">
 <span className="nav-title">SA Algal Bloom Monitor</span>
 <div className="nav-buttons">{['heatmap','forecast','cellcounts','satellite','cameras','algal-assistant'].map(l=>(<button key={l} onClick={()=>setLayer(l)} style={{padding:'6px 14px',borderRadius:20,border:'none',cursor:'pointer',background:layer===l?'#fff':'rgba(255,255,255,0.15)',color:layer===l?'#1a237e':'#fff'}}>{LABELS[l]}</button>))}</div>
-<div className="nav-contact" style={{marginLeft:'auto',fontSize:12,opacity:0.85}}><a href="mailto:khananas@live.com" style={{color:'#fff',textDecoration:'underline'}}>Feedback & Support: khananas@live.com</a></div>
+<div className="nav-contact" style={{marginLeft:'auto',fontSize:11,opacity:0.85}}><a href="mailto:khananas@live.com" style={{color:'#fff',textDecoration:'underline'}}>Feedback: khananas@live.com</a></div>
 <div className="nav-alert" style={{marginLeft:0}}><span style={{width:10,height:10,borderRadius:'50%',background:alerts.total_alerts>0?'#ff5252':'#69f0ae',display:'inline-block'}}/><span style={{fontSize:13}}>{alerts.total_alerts>0?alerts.total_alerts+' ALERT':'ALL CLEAR'}</span></div>
 </div>
 
