@@ -18,7 +18,7 @@ with zipfile.ZipFile(output_zip, 'w', zipfile.ZIP_DEFLATED) as zf:
         full_dir = os.path.join(base_dir, d)
         if os.path.isdir(full_dir):
             for root, dirs, files in os.walk(full_dir):
-                dirs[:] = [x for x in dirs if x not in ('__pycache__', 'venv', '.git', 'chroma_db')]
+                dirs[:] = [x for x in dirs if x not in ('__pycache__', 'venv', '.git')]
                 for file in files:
                     if file.endswith(('.pyc', '.pyo')):
                         continue

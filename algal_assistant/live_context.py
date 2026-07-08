@@ -11,6 +11,7 @@ Kept separate from rag_engine.py to stay within the 300-line rule.
 import os
 import sys
 import logging
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -74,32 +75,64 @@ def format_satellite(data: dict) -> str:
 
 # ── Direct DB helpers ─────────────────────────────────────────────────────────
 
-def _db_cell_counts() -> str | None:
-    """Query KareniaReadings directly from Supabase."""
+def _db_cell_counts(question: str = None) -> str | None:
+    """Query KareniaReadings directly from Supabase, including keyword matching for the user query."""
     try:
-        from db_config import get_connection, adapt_sql
+        from db_config import get_connection, adapt_sql, IS_POSTGRES
         conn   = get_connection()
         cursor = conn.cursor()
+        
+        # 1. Fetch latest 50 readings
         cursor.execute(adapt_sql("""
             SELECT TOP 50
-                beach_name, cell_count_per_litre, severity
+                beach_name, cell_count_per_litre, severity, recorded_at
             FROM KareniaReadings
             ORDER BY recorded_at DESC
         """))
         rows = cursor.fetchall()
+        
+        # 2. Fetch specific matching beaches if question is provided
+        matched_rows = []
+        if question:
+            words = re.findall(r'\b[a-zA-Z]{3,}\b', question)
+            stopwords = {'safe', 'swim', 'today', 'beach', 'jetty', 'water', 'bloom', 'algal', 'risk', 'danger', 'caution', 'swimming', 'is', 'the', 'for', 'are', 'what', 'how', 'any', 'news', 'update', 'current', 'latest'}
+            keywords = [w for w in words if w.lower() not in stopwords]
+            if keywords:
+                placeholder = "%s" if IS_POSTGRES else "?"
+                clauses = [f"beach_name ILIKE {placeholder}" if IS_POSTGRES else f"beach_name LIKE {placeholder}" for _ in keywords]
+                sql = f"""
+                    SELECT beach_name, cell_count_per_litre, severity, recorded_at
+                    FROM KareniaReadings
+                    WHERE {" OR ".join(clauses)}
+                    ORDER BY recorded_at DESC
+                """
+                cursor.execute(sql, [f"%{k}%" for k in keywords])
+                matched_rows = cursor.fetchall()
+        
         conn.close()
-        if not rows:
+        
+        # Merge rows by beach name, keeping the highest cell count or latest reading
+        merged = {}
+        for r in rows + matched_rows:
+            name = r[0]
+            if name not in merged or r[1] > merged[name][1]:
+                merged[name] = r
+                
+        final_rows = list(merged.values())
+        if not final_rows:
             return None
+            
         groups: dict[str, list[str]] = {"Critical": [], "High": [], "Medium": [], "Low": []}
-        for r in rows:
+        for r in final_rows:
             beach = r[0] or "Unknown"
             count = r[1] or 0
             sev   = r[2] or "Low"
             groups[sev if sev in groups else "Low"].append(f"  {beach}: {count:,} cells/L")
+            
         lines = [
             "GROUND TRUTH WATER SAMPLING DATA — HIGHEST PRIORITY",
             "Source: SA Government field water sampling — most accurate",
-            f"Total readings: {len(rows)}",
+            f"Total readings: {len(final_rows)}",
         ]
         for sev in ("Critical", "High", "Medium", "Low"):
             if groups[sev]:
@@ -111,29 +144,61 @@ def _db_cell_counts() -> str | None:
         return None
 
 
-def _db_safety() -> str | None:
-    """Compute beach safety scores directly from KareniaReadings."""
+def _db_safety(question: str = None) -> str | None:
+    """Compute beach safety scores directly from KareniaReadings, matching question keywords."""
     try:
-        from db_config import get_connection, adapt_sql
+        from db_config import get_connection, adapt_sql, IS_POSTGRES
         conn   = get_connection()
         cursor = conn.cursor()
+        
+        # Fetch top 15 by highest cell counts
         cursor.execute(adapt_sql("""
             SELECT TOP 15
-                beach_name, cell_count_per_litre, severity
+                beach_name, cell_count_per_litre, severity, recorded_at
             FROM KareniaReadings
             ORDER BY cell_count_per_litre DESC
         """))
         rows = cursor.fetchall()
+        
+        # Fetch specific matches if question is provided
+        matched_rows = []
+        if question:
+            words = re.findall(r'\b[a-zA-Z]{3,}\b', question)
+            stopwords = {'safe', 'swim', 'today', 'beach', 'jetty', 'water', 'bloom', 'algal', 'risk', 'danger', 'caution', 'swimming', 'is', 'the', 'for', 'are', 'what', 'how', 'any', 'news', 'update', 'current', 'latest'}
+            keywords = [w for w in words if w.lower() not in stopwords]
+            if keywords:
+                placeholder = "%s" if IS_POSTGRES else "?"
+                clauses = [f"beach_name ILIKE {placeholder}" if IS_POSTGRES else f"beach_name LIKE {placeholder}" for _ in keywords]
+                sql = f"""
+                    SELECT beach_name, cell_count_per_litre, severity, recorded_at
+                    FROM KareniaReadings
+                    WHERE {" OR ".join(clauses)}
+                    ORDER BY cell_count_per_litre DESC
+                """
+                cursor.execute(sql, [f"%{k}%" for k in keywords])
+                matched_rows = cursor.fetchall()
+                
         conn.close()
-        if not rows:
+        
+        # Merge
+        merged = {}
+        for r in rows + matched_rows:
+            name = r[0]
+            if name not in merged or r[1] > merged[name][1]:
+                merged[name] = r
+                
+        final_rows = list(merged.values())
+        if not final_rows:
             return None
+            
         def _score(c):
             if c >= 50000: return 20, "Danger"
             if c >= 10000: return 42, "Warning"
             if c >= 1000:  return 65, "Caution"
             return 85, "Safe"
-        lines = [f"BEACH SAFETY SCORES (calculated from ground truth)\nTop {len(rows)} beaches:"]
-        for r in rows:
+            
+        lines = [f"BEACH SAFETY SCORES (calculated from ground truth)\nTop beaches loaded:"]
+        for r in final_rows:
             sc, lbl = _score(r[1] or 0)
             lines.append(f"  {r[0]}: {sc}/100 [{lbl}] — {(r[1] or 0):,} cells/L")
         return "\n".join(lines)
@@ -179,9 +244,9 @@ def _db_weather() -> str | None:
 
 # ── Public entry point ────────────────────────────────────────────────────────
 
-def fetch_live_context(base_url: str = None) -> str:
+def fetch_live_context(base_url: str = None, question: str = None) -> str:
     """
-    Fetch live platform data for the Algal Assistant.
+    Fetch live platform data for the Algal Assistant, filtering/enriching based on question.
 
     Queries Supabase directly (no HTTP self-calls) to avoid the single-worker
     deadlock on Render free tier where the API cannot serve sub-requests while
@@ -189,17 +254,18 @@ def fetch_live_context(base_url: str = None) -> str:
 
     Args:
         base_url: Ignored — kept for backwards compatibility with rag_engine.py.
+        question: Optional user question to prioritize specific beach lookups.
 
     Returns:
         Formatted multi-section string. Empty string if DB is unreachable.
     """
     parts: list[str] = []
 
-    cell_str = _db_cell_counts()
+    cell_str = _db_cell_counts(question=question)
     if cell_str:
         parts.append(cell_str)
 
-    safety_str = _db_safety()
+    safety_str = _db_safety(question=question)
     if safety_str:
         parts.append(safety_str)
 

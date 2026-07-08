@@ -1,0 +1,45 @@
+{
+  "last_refresh_attempt": "2026-07-08T08:39:03.919224",
+  "sources": {
+    "weather": {
+      "status": "OK",
+      "last_success": "2026-07-08T08:39:03.919224",
+      "message": "5 locations, 360 rows",
+      "rows": 360
+    },
+    "ground_truth": {
+      "status": "OK",
+      "last_success": "2026-07-08T08:39:03.919224",
+      "message": "new CSV detected, inserted 0 readings",
+      "rows": 0,
+      "csv_hash": "b609e3bf8ce4ae9ef92a511615d96d10",
+      "last_date": "2026-07-08"
+    },
+    "satellite": {
+      "status": "OK",
+      "last_success": "2026-07-08T08:39:03.919224",
+      "message": "2 GEE pixels written"
+    },
+    "ocean_currents": {
+      "status": "OK",
+      "last_success": "2026-07-08T08:39:03.919224",
+      "message": "current grid updated"
+    },
+    "bloom_map": {
+      "status": "OK",
+      "last_success": "2026-07-08T08:39:03.919224",
+      "message": "51 coastal points interpolated"
+    },
+    "beach_safety": {
+      "status": "OK",
+      "last_success": "2026-07-08T08:39:03.919224",
+      "message": "17 beaches scored",
+      "count": 17
+    },
+    "particle_tracker": {
+      "status": "OK",
+      "last_success": "2026-07-08T08:39:03.919224",
+      "message": "800 particles, 72hr forecast ready"
+    }
+  }
+}

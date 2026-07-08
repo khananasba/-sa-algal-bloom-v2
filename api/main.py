@@ -621,7 +621,7 @@ def algal_assistant(req: AssistantRequest):
     live_data = ""
     live_data_fetched = False
     try:
-        live_data = get_live_context()
+        live_data = get_live_context(question=req.question)
         live_data_fetched = bool(live_data)
     except Exception as e:
         logging.warning(f"[algal-assistant] Live context error: {e}")

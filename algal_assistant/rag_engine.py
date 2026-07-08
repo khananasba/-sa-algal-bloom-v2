@@ -179,9 +179,9 @@ def retrieve_context(question: str, n: int = 3) -> list[str]:
 
 # ── 4. Live data (delegates to live_context.py) ───────────────────────────────
 
-def get_live_context() -> str:
+def get_live_context(question: str = None) -> str:
     """
-    Fetch live platform data from the API in priority order.
+    Fetch live platform data from the API in priority order, passing the question.
 
     Delegates to live_context.fetch_live_context() with the API_BASE_URL
     from the environment (defaults to http://localhost:8000/api).
@@ -192,7 +192,7 @@ def get_live_context() -> str:
     """
     from algal_assistant.live_context import fetch_live_context
     base = os.environ.get("API_BASE_URL", "http://localhost:8000/api")
-    return fetch_live_context(base)
+    return fetch_live_context(base, question=question)
 
 
 # ── 5. Prompt builder ─────────────────────────────────────────────────────────
