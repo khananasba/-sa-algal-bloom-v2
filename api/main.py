@@ -283,7 +283,7 @@ def cell_counts():
         conn   = get_connection()
         cursor = conn.cursor()
         cursor.execute(adapt_sql("""
-            SELECT TOP 100
+            SELECT
                 beach_name,
                 latitude,
                 longitude,
